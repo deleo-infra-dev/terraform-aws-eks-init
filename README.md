@@ -11,7 +11,7 @@ module "eks" {
 
 module "eks_init" {
   source  = "rayshoo/eks-init/aws"
-  version = "1.0.0"
+  version = "1.0.1"
 
   profile =  local.profile
   shared_credentials_files = var.shared_credentials_files

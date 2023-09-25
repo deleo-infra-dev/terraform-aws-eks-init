@@ -45,7 +45,7 @@ resource "kubectl_manifest" "karpenter_provisioner_default" {
           values: ["amd64"]
         - key: "karpenter.sh/capacity-type" # If not included, the webhook for the AWS cloud provider will default to on-demand
           operator: In
-          values: ["spot"]
+          values: ["spot","on-demand"]
         - key: kubernetes.io/os	
           operator: In	
           values: ["linux"]
