@@ -46,13 +46,15 @@ resource "kubectl_manifest" "karpenter_provisioner_default" {
         - key: "karpenter.sh/capacity-type" # If not included, the webhook for the AWS cloud provider will default to on-demand
           operator: In
           values: ["spot"]
+        - key: kubernetes.io/os	
+          operator: In	
+          values: ["linux"]
       kubeletConfiguration:
         containerRuntime: containerd
-        # https://docs.aws.amazon.com/ko_kr/AWSEC2/latest/UserGuide/using-eni.html
-        maxPods: 96
+        maxPods: 48 # https://docs.aws.amazon.com/ko_kr/AWSEC2/latest/UserGuide/using-eni.html
       limits:
         resources:
-          cpu: 1000
+          cpu: 1k
       providerRef:
         name: default
       consolidation:
