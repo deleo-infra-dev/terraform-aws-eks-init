@@ -10,7 +10,7 @@ resource "kubectl_manifest" "karpenter_node_class" {
       name: default
     spec:
       amiFamily: AL2
-      role: ${module.eks_init.karpenter.node_iam_role_name}
+      role: ${module.aws_eks_init.karpenter.node_iam_role_name}
       subnetSelectorTerms:
       - tags:
           karpenter.sh/discovery: ${var.cluster_name}
@@ -22,7 +22,7 @@ resource "kubectl_manifest" "karpenter_node_class" {
   YAML
 
   depends_on = [
-    module.eks_init
+    module.aws_eks_init
   ]
 }
 
@@ -70,7 +70,7 @@ resource "kubectl_manifest" "karpenter_node_pool_default" {
   YAML
 
   depends_on = [
-    module.eks_init
+    module.aws_eks_init
   ]
 }
 
