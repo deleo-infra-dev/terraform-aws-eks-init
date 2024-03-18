@@ -75,7 +75,7 @@ resource "kubectl_manifest" "karpenter_node_pool_default" {
 }
 
 # Example deployment using the [pause image](https://www.ianlewis.org/en/almighty-pause-container)
-resource "kubectl_manifest" "karpenter_node_init_deploy" {
+resource "kubectl_manifest" "default_inflate_deploy" {
   yaml_body = <<-YAML
     apiVersion: apps/v1
     kind: Deployment
@@ -109,7 +109,7 @@ resource "kubectl_manifest" "karpenter_node_init_deploy" {
   YAML
 
   depends_on = [
-    kubectl_manifest.karpenter_node_template,
-    kubectl_manifest.karpenter_provisioner_default
+    kubectl_manifest.karpenter_node_class,
+    kubectl_manifest.karpenter_node_pool_default
   ]
 }
