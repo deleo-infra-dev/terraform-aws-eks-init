@@ -20,8 +20,7 @@ module "eks_init" {
 
   for_each = var.eks_addons
   eks_addons = merge(var.eks_addons,
-  {
-      vpc-cni = {
+    vpc-cni = {
         # Specify the VPC CNI addon should be deployed before compute to ensure
         # the addon is configured before data plane compute resources are created
         # See README for further details
@@ -40,7 +39,7 @@ module "eks_init" {
         })
       },
       kube-proxy = {}
-  })
+  )
 
   enable_karpenter = true
   karpenter = {

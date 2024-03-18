@@ -63,8 +63,3 @@ variable "eks_addons" {
   type        = any
   default     = {}
 }
-variable "karpenter_node_iam_role_name" {
-  description = "karpenter node iam role name"
-  type        = any
-  default     = {}
-}
