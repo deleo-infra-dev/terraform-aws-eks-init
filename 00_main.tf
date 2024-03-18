@@ -18,7 +18,6 @@ module "eks_init" {
   # We want to wait for the Fargate profiles to be deployed first
   create_delay_dependencies = [for prof in var.fargate_profiles : prof.fargate_profile_arn]
 
-  for_each = var.eks_addons
   eks_addons = {
     coredns = {
       configuration_values = jsonencode({
