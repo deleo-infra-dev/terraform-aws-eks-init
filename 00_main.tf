@@ -6,7 +6,7 @@ data "aws_ecrpublic_authorization_token" "token" {
   provider = aws.virginia
 }
 
-module "eks_init" {
+module "aws_eks_init" {
   source  = "aws-ia/eks-blueprints-addons/aws"
   version = "~> 1.0"
 
