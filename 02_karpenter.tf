@@ -10,7 +10,7 @@ resource "kubectl_manifest" "karpenter_node_class" {
       name: default
     spec:
       amiFamily: AL2
-      role: ${module.eks_init.karpenter.node_iam_role_name}
+      role: ${var.karpenter_node_iam_role_name}
       subnetSelectorTerms:
       - tags:
           karpenter.sh/discovery: ${var.cluster_name}
