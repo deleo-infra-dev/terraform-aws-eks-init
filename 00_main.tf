@@ -38,7 +38,7 @@ module "eks_init" {
             WARM_PREFIX_TARGET       = "1"
           }
         })
-      }
+      },
       kube-proxy = {}
     )
   }
