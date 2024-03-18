@@ -58,3 +58,9 @@ variable "tags" {
   type        = any
   default     = {}
 }
+
+variable "karpenter_node_iam_role_name" {
+  description = "karpenter node iam role name"
+  type        = any
+  default     = {}
+}
