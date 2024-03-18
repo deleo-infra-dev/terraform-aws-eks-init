@@ -58,9 +58,8 @@ variable "tags" {
   type        = any
   default     = {}
 }
-
-variable "karpenter_node_iam_role_name" {
-  description = "karpenter node iam role name"
+variable "eks_addons" {
+  description = "Map of EKS add-on configurations to enable for the cluster. Add-on name can be the map keys or set with `name`"
   type        = any
   default     = {}
 }
