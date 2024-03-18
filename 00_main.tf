@@ -18,9 +18,9 @@ module "eks_init" {
   # We want to wait for the Fargate profiles to be deployed first
   create_delay_dependencies = [for prof in var.fargate_profiles : prof.fargate_profile_arn]
 
-  eks_addons = {
-    merge(
-      var.eks_addons,
+  for_each = var.eks_addons
+  eks_addons = merge(var.eks_addons,
+  {
       vpc-cni = {
         # Specify the VPC CNI addon should be deployed before compute to ensure
         # the addon is configured before data plane compute resources are created
@@ -38,10 +38,9 @@ module "eks_init" {
             WARM_PREFIX_TARGET       = "1"
           }
         })
-      }
+      },
       kube-proxy = {}
-    )
-  }
+  })
 
   enable_karpenter = true
   karpenter = {
