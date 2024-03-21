@@ -20,6 +20,10 @@ resource "kubectl_manifest" "karpenter_node_class" {
       tags:
         karpenter.sh/discovery: ${var.cluster_name}
   YAML
+
+  depends_on = [
+    module.eks_init
+  ]
 }
 
 resource "kubectl_manifest" "karpenter_node_pool_default" {
@@ -64,6 +68,10 @@ resource "kubectl_manifest" "karpenter_node_pool_default" {
       kubelet:
         maxPods: 288
   YAML
+
+  depends_on = [
+    module.eks_init
+  ]
 }
 
 # Example deployment using the [pause image](https://www.ianlewis.org/en/almighty-pause-container)
@@ -99,4 +107,9 @@ resource "kubectl_manifest" "default_inflate_deploy" {
               image: public.ecr.aws/eks-distro/kubernetes/pause:3.7
               resources: {}
   YAML
+
+  depends_on = [
+    kubectl_manifest.karpenter_node_class,
+    kubectl_manifest.karpenter_node_pool_default
+  ]
 }
