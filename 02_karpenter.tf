@@ -3,7 +3,7 @@
 ################################################################################
 
 resource "helm_release" "karpenter_default_node_resources" {
-  name       = "karpenter_default_node_resources"
+  name       = "karpenter-default-node-resources"
   namespace  = "karpenter"
   repository = "https://bedag.github.io/helm-charts/"
   chart      = "raw"
