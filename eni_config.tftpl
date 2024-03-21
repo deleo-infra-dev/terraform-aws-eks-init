@@ -6,8 +6,8 @@
     name: ${key}
   spec:
     securityGroups:
-    %{ for securityGroup in securityGroups ~}
+%{ for securityGroup in securityGroups ~}
     - ${securityGroup}
-    %{ endfor ~}
+%{ endfor ~}
     subnet: ${value}
 %{ endfor ~}
