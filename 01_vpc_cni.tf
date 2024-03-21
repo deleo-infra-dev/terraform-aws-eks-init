@@ -2,20 +2,19 @@
 # VPC-CNI Custom Networking ENIConfig
 ################################################################################
 
-resource "kubectl_manifest" "eni_config" {
-  for_each = zipmap(var.azs, var.eks_pod_subnet_ids)
-
-  yaml_body = yamlencode({
-    apiVersion = "crd.k8s.amazonaws.com/v1alpha1"
-    kind       = "ENIConfig"
-    metadata = {
-      name = each.key
-    }
-    spec = {
-      securityGroups = [
-        var.cluster_primary_security_group_id
-      ]
-      subnet = each.value
-    }
-  })
+resource "helm_release" "eni_config" {
+  name       = "eni-config"
+  namespace  = "kube-system"
+  repository = "https://bedag.github.io/helm-charts/"
+  chart      = "raw"
+  version    = "2.0.0"
+  values = [ templatefile("eni_config.tftpl", {
+    eni_configs = zipmap(var.azs, var.eks_pod_subnet_ids),
+    securityGroups = [
+      var.cluster_primary_security_group_id
+    ]
+  })]
+  depends_on = [
+    module.eks_addons
+  ]
 }
