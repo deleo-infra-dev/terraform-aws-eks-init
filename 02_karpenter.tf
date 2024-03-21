@@ -3,7 +3,7 @@
 ################################################################################
 
 resource "helm_release" "karpenter_default_node_resources" {
-  name       = "karpenter-default-node-resources"
+  name       = "karpenter_default_node_resources"
   namespace  = "karpenter"
   repository = "https://bedag.github.io/helm-charts/"
   chart      = "raw"
@@ -72,46 +72,39 @@ resource "helm_release" "karpenter_default_node_resources" {
   ]
 }
 
-resource "helm_release" "default_inflate_deploy" {
-  name       = "default-inflate-deploy"
-  namespace  = "default"
-  repository = "https://bedag.github.io/helm-charts/"
-  chart      = "raw"
-  version    = "2.0.0"
-  values = [
-    <<-EOF
-    resources:
-    - apiVersion: apps/v1
-      kind: Deployment
-      metadata:
-        name: inflate
-      spec:
-        replicas: 2
-        selector:
-          matchLabels:
+# Example deployment using the [pause image](https://www.ianlewis.org/en/almighty-pause-container)
+resource "kubectl_manifest" "default_inflate_deploy" {
+  yaml_body = <<-YAML
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: inflate
+    spec:
+      replicas: 2
+      selector:
+        matchLabels:
+          app: inflate
+      template:
+        metadata:
+          labels:
             app: inflate
-        template:
-          metadata:
-            labels:
-              app: inflate
-          spec:
-            terminationGracePeriodSeconds: 0
-            affinity:
-              podAntiAffinity:
-                requiredDuringSchedulingIgnoredDuringExecution:
-                - labelSelector:
-                    matchExpressions:
-                    - key: app
-                      operator: In
-                      values:
-                      - inflate
-                  topologyKey: kubernetes.io/hostname
-            containers:
-              - name: inflate
-                image: public.ecr.aws/eks-distro/kubernetes/pause:3.7
-                resources: {}
-    EOF
-  ]
+        spec:
+          terminationGracePeriodSeconds: 0
+          affinity:
+            podAntiAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                    - inflate
+                topologyKey: kubernetes.io/hostname
+          containers:
+            - name: inflate
+              image: public.ecr.aws/eks-distro/kubernetes/pause:3.7
+              resources: {}
+  YAML
   depends_on = [
     helm_release.karpenter_default_node_resources
   ]
