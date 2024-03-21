@@ -54,10 +54,6 @@ resource "helm_release" "karpenter_default_node_resources" {
             - key: kubernetes.io/os	
               operator: In	
               values:	["linux"]
-        # Resource limits constrain the total size of the cluster.
-        # Limits prevent Karpenter from creating new instances once the limit is exceeded.
-        limits:
-          cpu: 1000
         disruption:
           consolidationPolicy: WhenUnderutilized
           expireAfter: 4320h # 180 Days = 180 * 24 Hours
