@@ -32,13 +32,20 @@ resource "helm_release" "karpenter_default_node_resources" {
         name: default
       spec:
         template:
+          metadata:
+            labels:
+              default: 'true'
+              consolidation: 'true'
+              critical: 'false'
+              instance: m7i.xlarge
+              capacity: on-demand
           spec:
             nodeClassRef:
               name: default
             requirements:
             - key: node.kubernetes.io/instance-type
               operator: In
-              values: ["m6i.large"]
+              values: ["m7i.xlarge"]
             - key: karpenter.k8s.aws/instance-hypervisor
               operator: In
               values: ["nitro"]

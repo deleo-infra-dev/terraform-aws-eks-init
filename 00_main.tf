@@ -69,6 +69,12 @@ module "eks_init" {
   karpenter = {
     repository_username = data.aws_ecrpublic_authorization_token.token.user_name
     repository_password = data.aws_ecrpublic_authorization_token.token.password
+    set = [
+      {
+        name = "controller.resources.requests.memory"
+        value = "512Mi"
+      }
+    ]
   }
   enable_metrics_server = true
 
