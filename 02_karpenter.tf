@@ -67,7 +67,7 @@ resource "helm_release" "karpenter_default_node_resources" {
         # Karpenter provides the ability to specify a few additional Kubelet args.
         # These are all optional and provide support for additional customization and use cases.
         kubelet:
-          maxPods: 288
+          maxPods: 672
     EOF
   ]
   depends_on = [
