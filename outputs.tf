@@ -4,10 +4,10 @@ resource "fake" "fake_resource" {
 
 output "fake_output" {
   description = "fake output for prevent destroy module"
-  value       = "${fake.fake_resource.value}"
+  value       = fake.fake_resource.value
 }
 
 output "karpenter" {
   description = "Map of attributes of the Helm release and IRSA created"
-  value = module.eks_init.karpenter
+  value       = module.eks_init.karpenter
 }
