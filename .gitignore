@@ -3,3 +3,7 @@
 
 # intelliJ
 .idea/**
+
+.terraform/**
+
+.trunk/**
