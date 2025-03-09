@@ -1,4 +1,4 @@
-variable  "profile" {
+variable "profile" {
   description = "credential profile"
   type        = any
   default     = {}
@@ -8,7 +8,7 @@ variable "shared_credentials_files" {
   type        = any
   default     = {}
 }
-variable  "azs" {
+variable "azs" {
   description = "aws_availability_zones"
   type        = any
   default     = {}

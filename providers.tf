@@ -5,9 +5,9 @@ data "aws_eks_cluster_auth" "this" {
 # Required for public ECR where Karpenter artifacts are hosted
 provider "aws" {
   shared_credentials_files = var.shared_credentials_files
-  profile                 = var.profile
-  region = "us-east-1"
-  alias  = "virginia"
+  profile                  = var.profile
+  region                   = "us-east-1"
+  alias                    = "virginia"
 }
 
 provider "kubernetes" {
@@ -53,7 +53,7 @@ terraform {
       version = ">= 2.9"
     }
     fake = {
-      source = "rayshoo/fake"
+      source  = "rayshoo/fake"
       version = "1.0.0"
     }
   }

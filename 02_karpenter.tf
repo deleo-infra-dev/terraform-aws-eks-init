@@ -1,5 +1,5 @@
 ################################################################################
-# Karpenter
+# Karpenter 
 ################################################################################
 
 resource "helm_release" "karpenter_default_node_resources" {
@@ -75,7 +75,10 @@ resource "helm_release" "karpenter_default_node_resources" {
   ]
 }
 
-# Example deployment using the [pause image](https://www.ianlewis.org/en/almighty-pause-container)
+################################################################################
+# Karpenter Deployment for testing purposes  
+## -Example deployment using the [pause image](https://www.ianlewis.org/en/almighty-pause-container)
+################################################################################
 resource "kubectl_manifest" "default_inflate_deploy" {
   yaml_body = <<-YAML
     apiVersion: apps/v1
@@ -113,11 +116,18 @@ resource "kubectl_manifest" "default_inflate_deploy" {
   ]
 }
 
+################################################################################
+# Karpenter CRD
+################################################################################
 resource "helm_release" "karpenter_crd" {
-  name       = "karpenter-crd"
-  repository = "oci://public.ecr.aws/karpenter"
-  chart      = "karpenter-crd"
-  version    = var.karpenter_version
-  namespace  = "karpenter"
-  wait       = true
+  name         = "karpenter-crd"
+  repository   = "oci://public.ecr.aws/karpenter"
+  chart        = "karpenter-crd"
+  version      = var.karpenter_version
+  namespace    = "karpenter"
+  wait         = true
+  force_update = true # CRD is not updated automatically
 }
+
+
+
