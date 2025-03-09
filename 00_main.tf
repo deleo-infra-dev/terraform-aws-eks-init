@@ -1,11 +1,35 @@
 ################################################################################
-# EKS Init
-################################################################################
+# [LOCAL VARIABLES]
+#####################################################################################
+locals {
+  # Fargate resource configurations
+  fargate_memory = "512M" # 512M is the minimum memory for Fargate to work  
+  fargate_cpu    = "0.25" # 0.25 is the minimum CPU for Fargate to work 
 
+  # CNI configurations
+  cni_env_configs = {
+    AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = "true"
+    ENI_CONFIG_LABEL_DEF               = "topology.kubernetes.io/zone"
+    ENABLE_PREFIX_DELEGATION           = "true"
+    WARM_PREFIX_TARGET                 = "1"
+  }
+
+  # Karpenter configurations
+  karpenter_memory_request = "512Mi" # 512Mi is the minimum memory request for Karpenter to work 
+}
+
+################################################################################
+# [DATA]
+## - Used to pull images from ECR Public
+################################################################################
 data "aws_ecrpublic_authorization_token" "token" {
   provider = aws.virginia
 }
 
+################################################################################
+# [MODULE] - eks_init
+## - Used to initialize the EKS cluster
+################################################################################
 module "eks_init" {
   source  = "aws-ia/eks-blueprints-addons/aws"
   version = "~> 1.0"
@@ -15,55 +39,43 @@ module "eks_init" {
   cluster_version   = var.cluster_version
   oidc_provider_arn = var.oidc_provider_arn
 
-  # We want to wait for the Fargate profiles to be deployed first
   create_delay_dependencies = [for prof in var.fargate_profiles : prof.fargate_profile_arn]
-
   eks_addons = {
+
+    ## coreDNS ##
     coredns = {
+      replicaCount = 2
       configuration_values = jsonencode({
         computeType = "Fargate"
-        # Ensure that the we fully utilize the minimum amount of resources that are supplied by
-        # Fargate https://docs.aws.amazon.com/eks/latest/userguide/fargate-pod-configuration.html
-        # Fargate adds 256 MB to each pod's memory reservation for the required Kubernetes
-        # components (kubelet, kube-proxy, and containerd). Fargate rounds up to the following
-        # compute configuration that most closely matches the sum of vCPU and memory requests in
-        # order to ensure pods always have the resources that they need to run.
         resources = {
           limits = {
-            cpu = "0.25"
-            # We are targetting the smallest Task size of 512Mb, so we subtract 256Mb from the
-            # request/limit to ensure we can fit within that task
-            memory = "256M"
+            cpu    = local.fargate_cpu
+            memory = local.fargate_memory
           }
           requests = {
-            cpu = "0.25"
-            # We are targetting the smallest Task size of 512Mb, so we subtract 256Mb from the
-            # request/limit to ensure we can fit within that task
-            memory = "256M"
+            cpu    = local.fargate_cpu
+            memory = local.fargate_memory
           }
         }
       })
     }
-    vpc-cni = {
-        # Specify the VPC CNI addon should be deployed before compute to ensure
-        # the addon is configured before data plane compute resources are created
-        # See README for further details
-        before_compute = true
-        most_recent    = true # To ensure access to the latest settings provided
-        configuration_values = jsonencode({
-          env = {
-            # Reference https://aws.github.io/aws-eks-best-practices/reliability/docs/networkmanagement/#cni-custom-networking
-            AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = "true"
-            ENI_CONFIG_LABEL_DEF               = "topology.kubernetes.io/zone"
 
-            # # Reference docs https://docs.aws.amazon.com/eks/latest/userguide/cni-increase-ip-addresses.html
-            ENABLE_PREFIX_DELEGATION = "true"
-            WARM_PREFIX_TARGET       = "1"
-          }
-        })
-      }
-      kube-proxy = {}
+    ## vpc-cni ##
+    vpc-cni = {
+      before_compute = true
+      most_recent    = true
+      configuration_values = jsonencode({
+        env = {
+          env = local.cni_env_configs
+        }
+      })
+    }
+
+    ## kube-proxy ##
+    kube-proxy = {}
   }
+
+
 
   enable_karpenter = true
   karpenter = {
@@ -71,8 +83,8 @@ module "eks_init" {
     repository_password = data.aws_ecrpublic_authorization_token.token.password
     set = [
       {
-        name = "controller.resources.requests.memory"
-        value = "512Mi"
+        name  = "controller.resources.requests.memory"
+        value = local.karpenter_memory_request
       }
     ]
   }
