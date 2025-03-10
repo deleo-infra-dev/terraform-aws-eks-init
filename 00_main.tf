@@ -1,82 +1,104 @@
-################################################################################
-# [LOCAL VARIABLES]
-#####################################################################################
 locals {
-  # Fargate resource configurations
-  fargate_memory = "512M" # 512M is the minimum memory for Fargate to work  
-  fargate_cpu    = "0.25" # 0.25 is the minimum CPU for Fargate to work 
+  
+  ## Fargate resource configurations ##
+  fargate_memory = "512M"  
+  fargate_cpu    = "0.25"   
 
-  # CNI configurations
-  cni_env_configs = {
-    AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = "true"
-    ENI_CONFIG_LABEL_DEF               = "topology.kubernetes.io/zone"
-    ENABLE_PREFIX_DELEGATION           = "true"
-    WARM_PREFIX_TARGET                 = "1"
+  ## CoreDNS addon configuration ##
+  coredns_addon_config = {
+    computeType = "Fargate" 
+    resources = {
+      limits = {
+        cpu    = local.fargate_cpu   
+        memory = local.fargate_memory 
+      }
+      requests = {
+        cpu    = local.fargate_cpu   
+        memory = local.fargate_memory 
+      }
+    }
+    replicaCount = 2 
+    tolerations = [{
+      operator = "Exists" 
+    }]
   }
-
-  # Karpenter configurations
-  karpenter_memory_request = "512Mi" # 512Mi is the minimum memory request for Karpenter to work 
+  ## VPC-CNI addon configuration ##
+  vpc_cni_addon_config = {
+    env = {
+      AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = "true" 
+      ENI_CONFIG_LABEL_DEF               = "topology.kubernetes.io/zone" 
+      ENABLE_PREFIX_DELEGATION           = "true" 
+      WARM_PREFIX_TARGET                 = "1" 
+      ENABLE_POD_ENI                     = "true" 
+      WARM_ENI_TARGET                    = "1" 
+      MINIMUM_IP_TARGET                  = "10" 
+    }
+    resources = {
+      requests = {
+        cpu    = "25m" # CPU request for the VPC-CNI addon
+        memory = "64Mi" # Memory request for the VPC-CNI addon
+      }
+    }
+  }
+  ## Karpenter memory configuration ##
+  karpenter_memory_request = "512Mi" # Minimum memory request for Karpenter to work
 }
-
-################################################################################
-# [DATA]
-## - Used to pull images from ECR Public
-################################################################################
+########################################################
+# Data Sources 
+## - Used to pull images from ECR Public (aws.virginia provider is used to pull images from ECR Public)
+########################################################
 data "aws_ecrpublic_authorization_token" "token" {
   provider = aws.virginia
 }
 
-################################################################################
-# [MODULE] - eks_init
-## - Used to initialize the EKS cluster
-################################################################################
+########################################################
+# EKS Blueprints Addons
+## - Used to configure the EKS addons
+########################################################
 module "eks_init" {
   source  = "aws-ia/eks-blueprints-addons/aws"
   version = "~> 1.0"
-
-  cluster_name      = var.cluster_name
+  # Cluster basic configurations
+  cluster_name      = var.cluster_name 
   cluster_endpoint  = var.cluster_endpoint
-  cluster_version   = var.cluster_version
-  oidc_provider_arn = var.oidc_provider_arn
-
+  cluster_version   = var.cluster_version 
+  oidc_provider_arn = var.oidc_provider_arn 
+  
+  # Fargate profile dependencies
   create_delay_dependencies = [for prof in var.fargate_profiles : prof.fargate_profile_arn]
+  # EKS addons configurations
   eks_addons = {
 
-    ## coreDNS ##
+    ## CoreDNS addon configuration (default addon)
     coredns = {
-      replicaCount = 2
-      configuration_values = jsonencode({
-        computeType = "Fargate"
-        resources = {
-          limits = {
-            cpu    = local.fargate_cpu
-            memory = local.fargate_memory
-          }
-          requests = {
-            cpu    = local.fargate_cpu
-            memory = local.fargate_memory
-          }
-        }
-      })
+      most_recent = true
+      configuration_values = jsonencode(local.coredns_addon_config)
+      resolve_conflicts_on_create = "OVERWRITE"
+      resolve_conflicts_on_update = "PRESERVE"
+      timeouts = {
+        create = "15m"
+        update = "15m"
+      }
     }
 
-    ## vpc-cni ##
+    ## VPC-CNI addon configuration (default addon) ##
     vpc-cni = {
       before_compute = true
       most_recent    = true
-      configuration_values = jsonencode({
-        env = {
-          env = local.cni_env_configs
-        }
-      })
+      configuration_values = jsonencode(local.vpc_cni_addon_config)
+      resolve_conflicts_on_create = "OVERWRITE"
+      resolve_conflicts_on_update = "PRESERVE"
+      timeouts = {
+        create = "15m"
+        update = "15m"
+      }
     }
 
-    ## kube-proxy ##
+    ## Kube-proxy addon configuration (default addon) ##
     kube-proxy = {}
   }
 
-
-
+  # Karpenter configuration (default addon)
   enable_karpenter = true
   karpenter = {
     repository_username = data.aws_ecrpublic_authorization_token.token.user_name
@@ -88,7 +110,10 @@ module "eks_init" {
       }
     ]
   }
+
+  # Metrics server configuration (default addon) ##
   enable_metrics_server = true
 
+  # Resource tagging (default tag) ##
   tags = var.tags
 }
