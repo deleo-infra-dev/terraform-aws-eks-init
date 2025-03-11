@@ -18,9 +18,14 @@ locals {
       }
     }
     replicaCount = 2 
-    tolerations = [{
-      operator = "Exists" 
-    }]
+    tolerations = [
+      {
+        key      = "eks.amazonaws.com/compute-type"
+        operator = "Equal"
+        value    = "fargate"
+        effect   = "NoSchedule"
+      }
+    ]
   }
   ## VPC-CNI addon configuration ##
   vpc_cni_addon_config = {
