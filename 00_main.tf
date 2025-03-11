@@ -58,8 +58,8 @@ data "aws_ecrpublic_authorization_token" "token" {
 module "eks_init" {
   source  = "aws-ia/eks-blueprints-addons/aws"
   version = "~> 1.0"
-  # Cluster basic configurations
-  cluster_name      = var.cluster_name 
+
+  cluster_name      = var.cluster_name
   cluster_endpoint  = var.cluster_endpoint
   cluster_version   = var.cluster_version 
   oidc_provider_arn = var.oidc_provider_arn 
