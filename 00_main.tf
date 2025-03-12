@@ -148,8 +148,9 @@ module "eks_init" {
     }
 
   # Resource tagging (default tag) ##
-  tags = {
-    Name = var.cluster_name
+    tags = {
+      Name = var.cluster_name
+    }
   }
 }
 

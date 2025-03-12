@@ -148,8 +148,3 @@ resource "null_resource" "karpenter_restart" {
 }
 
 
-resource "aws_eks_addon" "karpenter" {
-  cluster_name = var.cluster_name
-  addon_name   = "karpenter"
-  addon_version = data.aws_eks_addon_version.latest.version
-}
