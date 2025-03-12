@@ -126,18 +126,19 @@ module "eks_init" {
     ########################################################
     # Karpenter configuration (default addon)
     ########################################################
-    
-    # karpenter = {
-    #   enable = true # Karpenter 활성화
-    #   repository_username = data.aws_ecrpublic_authorization_token.token.user_name
-    #   repository_password = data.aws_ecrpublic_authorization_token.token.password
-    #   set = [
-    #     {
-    #       name  = "controller.resources.requests.memory"
-    #       value = local.karpenter_memory_request
-    #     }
-    #   ]
-    # }
+    enable_metrics_server = true # Metrics server 활성화        
+    enable_karpenter = true # Karpenter 활성화
+    karpenter = {
+      enable = true # Karpenter 활성화
+      repository_username = data.aws_ecrpublic_authorization_token.token.user_name
+      repository_password = data.aws_ecrpublic_authorization_token.token.password
+      set = [
+        {
+          name  = "controller.resources.requests.memory"
+          value = local.karpenter_memory_request
+        }
+      ]
+    }
 
   # Resource tagging (default tag) ##
     # tags = {
