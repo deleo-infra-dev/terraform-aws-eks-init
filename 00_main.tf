@@ -121,18 +121,14 @@ module "eks_init" {
     ########################################################
     # Metrics server configuration (default addon) ##
     ########################################################
-    #enable_metrics_server = true # Metrics server 활성화
-    metrics_server = {
-      enable = true # Metrics server 활성화
-      most_recent = true # 최신 버전 사용
-    }
+    enable_metrics_server = true # Metrics server 활성화
+ 
     ########################################################
     # Karpenter configuration (default addon)
     ########################################################
     
     karpenter = {
       enable = true # Karpenter 활성화
-      most_recent = true # 최신 버전 사용
       repository_username = data.aws_ecrpublic_authorization_token.token.user_name
       repository_password = data.aws_ecrpublic_authorization_token.token.password
       set = [
@@ -148,9 +144,9 @@ module "eks_init" {
     }
 
   # Resource tagging (default tag) ##
-    tags = {
-      Name = var.cluster_name
-    }
+    # tags = {
+    #   Name = var.cluster_name
+    # }
   }
 }
 
