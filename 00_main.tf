@@ -126,17 +126,77 @@ module "eks_init" {
     ########################################################
     # Karpenter configuration (default addon)
     ########################################################
-    enable_karpenter = true # Karpenter 활성화
-    karpenter = {
-      repository_username = data.aws_ecrpublic_authorization_token.token.user_name
-      repository_password = data.aws_ecrpublic_authorization_token.token.password
-      set = [
-        {
-          name  = "controller.resources.requests.memory"
-          value = local.karpenter_memory_request
-        }
-      ]
+    # Karpenter 버전 설정
+    karpenter_version = var.karpenter_version
+
+
+    ########################################################
+    # Karpenter 설정
+    ########################################################
+    chart = "karpenter"
+    repository = "oci://public.ecr.aws/karpenter"
+    description = "Karpenter is a Kubernetes operator that provisions and manages Kubernetes nodes."
+    version = var.karpenter_version # Karpenter 버전 설정
+    namespace = "karpenter" # 네임스페이스 설정
+    create_namespace = true
+    set = [
+      {
+        name = "clusterName"
+        value = var.cluster_name # 클러스터 이름
+      },
+      {
+        name = "clusterEndpoint"
+        value = var.cluster_endpoint # 클러스터 엔드포인트
+      },
+      {
+        name = "aws.defaultInstanceProfile"
+        value = "arn:aws:iam::${var.account_id}:instance-profile/${module.eks_init.karpenter.node_iam_role_name}" # 노드 인스턴스 프로필 연결
+      },
+      {
+        name = "controller.resources.requests.memory"
+        value = local.karpenter_memory_request # 최소 메모리 요청 
+      },
+      {
+        name = "controller.image.tag"
+        value = var.karpenter_version # Karpenter 버전 설정
+      },
+      {
+        name = "controller.image.repository"
+        value = "public.ecr.aws/karpenter/controller"
+      },
+      {
+        name = "controller.image.pullSecrets"
+        value = "karpenter-ecr-secret" # ECR 비밀번호 설정
+      },
+      {
+        name = "serviceAccount.annotations.eks.amazonaws.com/role-arn"
+        value = module.eks_init.karpenter.service_account_iam_role_arn
+      },
+      {
+        name = "serviceAccount.name"
+        value = "karpenter" # 서비스 계정 이름
+      }
+    ]
+
+    set_irsa_names = ["serviceAccount.annotations.eks.amazonaws.com/role-arn"] # IRSA 역할 이름 설정
+
+    # IAM 역할 설정
+    create_iam_role = true
+    role_name = "karpenter-controller"
+    role_policies = {
+      karpenter = "arn:aws:iam::${var.account_id}:policy/${var.cluster_name}-KarpenterControllerPolicy"  # Karpenter 정책 연결
     }
+
+    oidc_providers = {
+      this = {
+        provider_arn = var.oidc_provider_arn  # OIDC 공급자 ARN
+        service_account = "karpenter"  # 서비스 계정 이름
+      }
+    } # OIDC 공급자 설정
+
+    enable_cert_manager = true # Cert Manager 활성화
+    enable_efs_csi_driver = true # EFS CSI 드라이버 활성화
+    enable_ebs_csi_driver = true # EBS CSI 드라이버 활성화
 
   # Resource tagging (default tag) ##
   tags = var.tags
@@ -159,7 +219,5 @@ resource "null_resource" "karpenter_restart" {
     module.eks_init  # Karpenter가 배포된 후 실행
   ]
 }
-
-
 
 ########################################################
