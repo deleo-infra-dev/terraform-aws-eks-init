@@ -153,36 +153,7 @@ module "eks_init" {
   }
 }
 
-########################################################
-# Karpenter 강제 재시작 (Terraform 실행 시 자동 트리거)
-########################################################
-resource "null_resource" "karpenter_restart" {
-  provisioner "local-exec" {
-    command = <<EOT
-      kubectl scale deployment karpenter --replicas=0 -n karpenter # 중지
-      sleep 5 # 5초 대기
-      kubectl scale deployment karpenter --replicas=1 -n karpenter # 재시작
-    EOT
-  }
-
-  depends_on = [
-    module.eks_init  # Karpenter가 배포된 후 실행
-  ]
-}
-
-########################################################
 
 
-resource "aws_eks_addon" "metrics_server" {
-  cluster_name = var.cluster_name
-  addon_name    = "metrics-server"
-  addon_version = data.aws_eks_addon_version.latest.version
-}
-
-resource "aws_eks_addon" "karpenter" {
-  cluster_name = var.cluster_name
-  addon_name    = "karpenter"
-  addon_version = data.aws_eks_addon_version.latest.version
-} 
 
 
