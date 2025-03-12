@@ -63,3 +63,8 @@ variable "tags" {
   type        = any
   default     = {}
 }
+variable "account_id" {
+  description = "account id"
+  type        = any
+  default     = {}
+}
