@@ -148,7 +148,8 @@ module "eks_init" {
     }
 
   # Resource tagging (default tag) ##
-  tags = var.tags
+  tags = {
+    Name = var.cluster_name
   }
 }
 
@@ -170,3 +171,18 @@ resource "null_resource" "karpenter_restart" {
 }
 
 ########################################################
+
+
+resource "aws_eks_addon" "metrics_server" {
+  cluster_name = var.cluster_name
+  addon_name    = "metrics-server"
+  addon_version = data.aws_eks_addon_version.latest.version
+}
+
+resource "aws_eks_addon" "karpenter" {
+  cluster_name = var.cluster_name
+  addon_name    = "karpenter"
+  addon_version = data.aws_eks_addon_version.latest.version
+} 
+
+
