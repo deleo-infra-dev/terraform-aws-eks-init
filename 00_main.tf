@@ -121,7 +121,7 @@ module "eks_init" {
     ########################################################
     # Metrics server configuration (default addon) ##
     ########################################################
-    enable_metrics_server = true # Metrics server 활성화
+    # enable_metrics_server = true # Metrics server 활성화
  
     ########################################################
     # Karpenter configuration (default addon)
@@ -135,10 +135,6 @@ module "eks_init" {
         {
           name  = "controller.resources.requests.memory"
           value = local.karpenter_memory_request
-        },
-        {
-          name = "controller.image.tag"
-          value = var.karpenter_version
         }
       ]
     }
