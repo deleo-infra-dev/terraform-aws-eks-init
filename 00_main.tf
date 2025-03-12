@@ -121,19 +121,28 @@ module "eks_init" {
     ########################################################
     # Metrics server configuration (default addon) ##
     ########################################################
-    enable_metrics_server = true # Metrics server 활성화
-
+    #enable_metrics_server = true # Metrics server 활성화
+    metrics_server = {
+      enable = true # Metrics server 활성화
+      most_recent = true # 최신 버전 사용
+    }
     ########################################################
     # Karpenter configuration (default addon)
     ########################################################
-    enable_karpenter = true # Karpenter 활성화
+    
     karpenter = {
+      enable = true # Karpenter 활성화
+      most_recent = true # 최신 버전 사용
       repository_username = data.aws_ecrpublic_authorization_token.token.user_name
       repository_password = data.aws_ecrpublic_authorization_token.token.password
       set = [
         {
           name  = "controller.resources.requests.memory"
           value = local.karpenter_memory_request
+        },
+        {
+          name = "controller.image.tag"
+          value = var.karpenter_version
         }
       ]
     }
@@ -159,7 +168,5 @@ resource "null_resource" "karpenter_restart" {
     module.eks_init  # Karpenter가 배포된 후 실행
   ]
 }
-
-
 
 ########################################################
