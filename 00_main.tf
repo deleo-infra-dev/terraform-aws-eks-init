@@ -4,18 +4,6 @@ locals {
   fargate_memory = "512M"  
   fargate_cpu    = "0.25"   
 
-  env = {
-    AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = "true"  
-    ENI_CONFIG_LABEL_DEF               = "topology.kubernetes.io/zone" 
-    ENABLE_PREFIX_DELEGATION           = "true"  
-    WARM_PREFIX_TARGET                 = "1"    
-    ENABLE_POD_ENI                     = "true" 
-  }
-  resolve_conflicts = {
-    create = "OVERWRITE"
-    update = "PRESERVE"
-  }
-
   ## CoreDNS addon configuration ##
   coredns_addon_config = {
     computeType = "Fargate" 
@@ -30,13 +18,26 @@ locals {
       }
     }
     replicaCount = 2 
-    tolerations = [{
-      operator = "Exists"   # This toleration allows the CoreDNS pod to be scheduled on any node, regardless of the node's taint
-    }]
+    tolerations = [
+      {
+        key      = "eks.amazonaws.com/compute-type"
+        operator = "Equal"
+        value    = "fargate"
+        effect   = "NoSchedule"
+      }
+    ]
   }
   ## VPC-CNI addon configuration ##
   vpc_cni_addon_config = {
-    env = local.env
+    env = {
+      AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = "true" 
+      ENI_CONFIG_LABEL_DEF               = "topology.kubernetes.io/zone" 
+      ENABLE_PREFIX_DELEGATION           = "true" 
+      WARM_PREFIX_TARGET                 = "1" 
+      ENABLE_POD_ENI                     = "true" 
+      WARM_ENI_TARGET                    = "1" 
+      MINIMUM_IP_TARGET                  = "10" 
+    }
     resources = {
       requests = {
         cpu    = "25m" # CPU request for the VPC-CNI addon
@@ -47,7 +48,6 @@ locals {
   ## Karpenter memory configuration ##
   karpenter_memory_request = "512Mi" # Minimum memory request for Karpenter to work
 }
-
 ########################################################
 # Data Sources 
 ## - Used to pull images from ECR Public (aws.virginia provider is used to pull images from ECR Public)
@@ -65,59 +65,45 @@ module "eks_init" {
   version = "~> 1.0"
 
   cluster_name      = var.cluster_name
-  cluster_endpoint  = var.cluster_endpoint # 클러스터 엔드포인트
-  cluster_version   = var.cluster_version  # 클러스터 버전
-  oidc_provider_arn = var.oidc_provider_arn    # OIDC 공급자 ARN
+  cluster_endpoint  = var.cluster_endpoint
+  cluster_version   = var.cluster_version 
+  oidc_provider_arn = var.oidc_provider_arn 
   
   # Fargate profile dependencies
-  create_delay_dependencies = [for prof in var.fargate_profiles : prof.fargate_profile_arn] # Fargate 프로필 종속성 추가
+  create_delay_dependencies = [for prof in var.fargate_profiles : prof.fargate_profile_arn]
   # EKS addons configurations
   eks_addons = {
-    ########################################################
-    # CoreDNS addon configuration (default addon) ##
-    ########################################################
+
+    ## CoreDNS addon configuration (default addon)
     coredns = {
-      most_recent = true # 최신 버전 사용
+      most_recent = true
       configuration_values = jsonencode(local.coredns_addon_config)
-
-      resolve_conflicts = local.resolve_conflicts
+      resolve_conflicts_on_create = "OVERWRITE"
+      resolve_conflicts_on_update = "PRESERVE"
       timeouts = {
-        create = "15m" # 15분 대기
-        update = "15m" # 15분 대기
+        create = "15m"
+        update = "15m"
       }
     }
 
-
-    ########################################################
-    # VPC-CNI addon configuration (default addon) ##
-    ########################################################
+    ## VPC-CNI addon configuration (default addon) ##
     vpc-cni = {
-      before_compute = true # 컴퓨트 이전에 배포
-      most_recent    = true # 최신 버전 사용
+      before_compute = true
+      most_recent    = true
       configuration_values = jsonencode(local.vpc_cni_addon_config)
-      
-      resolve_conflicts = local.resolve_conflicts
+      resolve_conflicts_on_create = "OVERWRITE"
+      resolve_conflicts_on_update = "PRESERVE"
       timeouts = {
-        create = "15m" # 15분 대기
-        update = "15m" # 15분 대기
+        create = "15m"
+        update = "15m"
       }
     }
 
-    ########################################################
-    # Kube-proxy addon configuration (default addon) ##
-    ########################################################
-    kube-proxy = {
-      before_compute = true # 컴퓨트 이전에 배포
-      most_recent    = true # 최신 버전 사용
-      # configuration_values = jsonencode(local.kube_proxy_addon_config)
-
-      resolve_conflicts = local.resolve_conflicts
-      timeouts = {
-        create = "15m" # 15분 대기
-        update = "15m" # 15분 대기
-    }
+    ## Kube-proxy addon configuration (default addon) ##
+    kube-proxy = {}
   }
 
+<<<<<<< HEAD
     ########################################################
     # Metrics server configuration (default addon) ##
     ########################################################
@@ -151,3 +137,24 @@ module "eks_init" {
 
 
 
+=======
+  # Karpenter configuration (default addon)
+  enable_karpenter = true
+  karpenter = {
+    repository_username = data.aws_ecrpublic_authorization_token.token.user_name
+    repository_password = data.aws_ecrpublic_authorization_token.token.password
+    set = [
+      {
+        name  = "controller.resources.requests.memory"
+        value = local.karpenter_memory_request
+      }
+    ]
+  }
+
+  # Metrics server configuration (default addon) ##
+  enable_metrics_server = true
+
+  # Resource tagging (default tag) ##
+  tags = var.tags
+}
+>>>>>>> parent of 88f81c5 ([UPDATE] Karpenter 및 EKS 구성 업데이트, 환경 변수 추가 및 주석 개선 ✨)
