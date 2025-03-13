@@ -55,8 +55,8 @@ variable "cluster_primary_security_group_id" {
 }
 variable "karpenter_version" {
   description = "karpenter version for install crd"
-  type        = string
-  default     = "v0.37.0"
+  type        = any
+  default     = {}
 }
 variable "tags" {
   description = "tags"

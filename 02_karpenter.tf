@@ -119,11 +119,11 @@ resource "kubectl_manifest" "default_inflate_deploy" {
 ################################################################################
 # Karpenter CRD
 ################################################################################
-resource "helm_release" "karpenter_crd" {
-  name         = "karpenter-crd"
-  repository   = "oci://public.ecr.aws/karpenter"
-  chart        = "karpenter-crd"
-  version      = var.karpenter_version
-  namespace    = "karpenter"
-  wait         = true
-}
+# resource "helm_release" "karpenter_crd" {
+#   name         = "karpenter-crd"
+#   repository   = "oci://public.ecr.aws/karpenter"
+#   chart        = "karpenter-crd"
+#   version      = var.karpenter_version
+#   namespace    = "karpenter"
+#   wait         = true
+# }
