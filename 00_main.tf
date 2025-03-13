@@ -103,41 +103,6 @@ module "eks_init" {
     kube-proxy = {}
   }
 
-<<<<<<< HEAD
-    ########################################################
-    # Metrics server configuration (default addon) ##
-    ########################################################
-    # enable_metrics_server = true # Metrics server 활성화
- 
-    ########################################################
-    # Karpenter configuration (default addon)
-    ########################################################
-    enable_metrics_server = true # Metrics server 활성화        
-    enable_karpenter = true # Karpenter 활성화
-    karpenter = {
-      enable = true # Karpenter 활성화
-      repository_username = data.aws_ecrpublic_authorization_token.token.user_name
-      repository_password = data.aws_ecrpublic_authorization_token.token.password
-      set = [
-        {
-          name  = "controller.resources.requests.memory"
-          value = local.karpenter_memory_request
-        }
-      ]
-    }
-
-  # Resource tagging (default tag) ##
-    # tags = {
-    #   Name = var.cluster_name
-    # }
-  }
-}
-
-
-
-
-
-=======
   # Karpenter configuration (default addon)
   enable_karpenter = true
   karpenter = {
@@ -157,4 +122,3 @@ module "eks_init" {
   # Resource tagging (default tag) ##
   tags = var.tags
 }
->>>>>>> parent of 88f81c5 ([UPDATE] Karpenter 및 EKS 구성 업데이트, 환경 변수 추가 및 주석 개선 ✨)
