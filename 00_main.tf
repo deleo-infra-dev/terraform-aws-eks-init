@@ -114,6 +114,7 @@ module "eks_init" {
         value = local.karpenter_memory_request
       }
     ]
+    force_update = true # force update to ensure the latest version of Karpenter is installed
   }
 
   # Metrics server configuration (default addon) ##

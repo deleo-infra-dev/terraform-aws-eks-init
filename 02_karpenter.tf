@@ -126,5 +126,4 @@ resource "helm_release" "karpenter_crd" {
   version      = var.karpenter_version
   namespace    = "karpenter"
   wait         = true
-  force_update = true # CRD is not updated automatically
 }
