@@ -70,7 +70,7 @@ module "eks_init" {
   oidc_provider_arn = var.oidc_provider_arn
 
   # Fargate profile dependencies - kube-system only
-  create_delay_dependencies = [for prof in var.fargate_profiles : prof.fargate_profile_arn]
+  create_delay_dependencies = var.create_delay_dependencies
 
   # EKS addons configurations
   eks_addons = {
