@@ -48,7 +48,7 @@ locals {
   ## Karpenter memory configuration ##
   karpenter_memory_request = "512Mi" # Minimum memory request for Karpenter to work
 
-  fargate_profile_arn = "arn:aws:eks:${local.region}:${local.account_id}:fargate-profile/${local.cluster_name}/kube-system"
+  fargate_profile_arn = "arn:aws:eks:${var.region}:${var.account_id}:fargate-profile/${var.eks_name}/kube-system"
 }
 ########################################################
 # Data Sources 
