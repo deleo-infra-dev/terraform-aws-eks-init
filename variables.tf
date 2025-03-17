@@ -67,17 +67,9 @@ variable "account_id" {
   type        = string
 }
 
-########################################################
-# Fargate profiles
-########################################################
-variable "fargate_profiles" {
-  description = "fargate profiles"
-  type        = list(object({
-    name = string
-    fargate_profile_arn = string
-  }))
-  default = []
+
+variable "create_delay_dependencies" {
+  description = "List of dependencies to wait for before creating addons"
+  type        = list(string)
+  default     = []
 }
-
-
-
