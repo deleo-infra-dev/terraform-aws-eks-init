@@ -1,70 +1,72 @@
 variable "profile" {
   description = "credential profile"
-  type        = any
-  default     = {}
+  type        = string
 }
+
 variable "shared_credentials_files" {
   description = "shared credentials files"
-  type        = any
-  default     = {}
+  type        = list(string)
+  default     = []
 }
+
 variable "azs" {
   description = "aws_availability_zones"
-  type        = any
-  default     = {}
+  type        = list(string)
 }
+
 variable "eks_pod_subnet_ids" {
   description = "eks pod subnet ids"
-  type        = any
-  default     = {}
+  type        = list(string)
 }
+
 variable "cluster_name" {
   description = "cluster name"
-  type        = any
-  default     = {}
+  type        = string
 }
+
 variable "cluster_endpoint" {
   description = "cluster endpoint"
-  type        = any
-  default     = {}
+  type        = string
 }
+
 variable "cluster_version" {
   description = "cluster version"
-  type        = any
-  default     = {}
+  type        = string
 }
+
 variable "oidc_provider_arn" {
   description = "oidc provider arn"
-  type        = any
-  default     = {}
+  type        = string
 }
+
 variable "fargate_profiles" {
   description = "fargate profiles"
-  type        = any
+  type        = map(any)
   default     = {}
 }
+
 variable "cluster_ca_certificate" {
   description = "cluster ca certificate"
-  type        = any
-  default     = {}
+  type        = string
 }
+
 variable "cluster_primary_security_group_id" {
   description = "cluster primary security group id"
-  type        = any
-  default     = {}
+  type        = string
 }
+
 variable "karpenter_version" {
   description = "karpenter version for install crd"
-  type        = any
-  default     = {}
+  type        = string
 }
+
 variable "tags" {
   description = "tags"
-  type        = any
+  type        = map(string)
   default     = {}
 }
+
 variable "account_id" {
   description = "account id"
-  type        = any
-  default     = {}
+  type        = string
 }
