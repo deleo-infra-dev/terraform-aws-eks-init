@@ -106,6 +106,11 @@ resource "kubectl_manifest" "default_inflate_deploy" {
                     values:
                     - inflate
                 topologyKey: kubernetes.io/hostname
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - { key: "eks.amazonaws.com/compute-type", operator: "NotIn", values: [ "fargate" ] }
           containers:
             - name: inflate
               image: public.ecr.aws/eks-distro/kubernetes/pause:3.7
@@ -116,14 +121,3 @@ resource "kubectl_manifest" "default_inflate_deploy" {
   ]
 }
 
-################################################################################
-# Karpenter CRD
-################################################################################
-# resource "helm_release" "karpenter_crd" {
-#   name         = "karpenter-crd"
-#   repository   = "oci://public.ecr.aws/karpenter"
-#   chart        = "karpenter-crd"
-#   version      = var.karpenter_version
-#   namespace    = "karpenter"
-#   wait         = true
-# }
