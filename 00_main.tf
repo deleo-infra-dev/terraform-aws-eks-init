@@ -47,6 +47,8 @@ locals {
   }
   ## Karpenter memory configuration ##
   karpenter_memory_request = "512Mi" # Minimum memory request for Karpenter to work
+
+  fargate_profile_arn = "arn:aws:eks:${local.region}:${local.account_id}:fargate-profile/${local.cluster_name}/kube-system"
 }
 ########################################################
 # Data Sources 
@@ -70,7 +72,8 @@ module "eks_init" {
   oidc_provider_arn = var.oidc_provider_arn
 
   # Fargate profile dependencies - kube-system only
-  create_delay_dependencies = [for prof in var.fargate_profiles : prof.fargate_profile_arn if prof.name == "kube-system"]
+  #create_delay_dependencies = [for prof in var.fargate_profiles : prof.fargate_profile_arn if prof.name == "kube-system"]
+  create_delay_dependencies = [local.fargate_profile_arn]
 
   # EKS addons configurations
   eks_addons = {

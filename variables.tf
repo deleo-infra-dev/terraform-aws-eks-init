@@ -39,11 +39,7 @@ variable "oidc_provider_arn" {
   type        = string
 }
 
-variable "fargate_profiles" {
-  description = "fargate profiles"
-  type        = map(any)
-  default     = {}
-}
+
 
 variable "cluster_ca_certificate" {
   description = "cluster ca certificate"
@@ -67,6 +63,18 @@ variable "tags" {
 }
 
 variable "account_id" {
-  description = "account id"
+  description = "AWS 계정 ID"
   type        = string
+}
+
+########################################################
+# Fargate profiles
+########################################################
+variable "fargate_profiles" {
+  description = "fargate profiles"
+  type        = list(object({
+    name = string
+    fargate_profile_arn = string
+  }))
+  default = []
 }
