@@ -66,14 +66,14 @@ module "eks_init" {
 
   cluster_name      = var.cluster_name
   cluster_endpoint  = var.cluster_endpoint
-  cluster_version   = var.cluster_version 
-  oidc_provider_arn = var.oidc_provider_arn 
-  
-  # Fargate profile dependencies
-  create_delay_dependencies = [for prof in var.fargate_profiles : prof.fargate_profile_arn]
+  cluster_version   = var.cluster_version
+  oidc_provider_arn = var.oidc_provider_arn
+
+  # Fargate profile dependencies - kube-system only
+  create_delay_dependencies = var.create_delay_dependencies
+
   # EKS addons configurations
   eks_addons = {
-
     ## CoreDNS addon configuration (default addon)
     coredns = {
       most_recent = true
