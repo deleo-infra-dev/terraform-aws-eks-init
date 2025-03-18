@@ -64,10 +64,10 @@ module "eks_init" {
   source  = "aws-ia/eks-blueprints-addons/aws"
   version = "~> 1.0"
 
-  cluster_name      = var.cluster_name
-  cluster_endpoint  = var.cluster_endpoint
-  cluster_version   = var.cluster_version
-  oidc_provider_arn = var.oidc_provider_arn
+  cluster_name                      = module.eks.cluster_name
+  cluster_endpoint                  = module.eks.cluster_endpoint
+  cluster_version                   = module.eks.cluster_version
+  oidc_provider_arn                 = module.eks.oidc_provider_arn
 
   # Fargate profile dependencies - kube-system only
   create_delay_dependencies = var.create_delay_dependencies
@@ -105,6 +105,8 @@ module "eks_init" {
 
   # Karpenter configuration (default addon)
   enable_karpenter = true
+  # karpenter EC2 Instance Profile Creation
+  karpenter_enable_instance_profile_creation = true
   karpenter = {
     repository_username = data.aws_ecrpublic_authorization_token.token.user_name
     repository_password = data.aws_ecrpublic_authorization_token.token.password
@@ -114,7 +116,7 @@ module "eks_init" {
         value = local.karpenter_memory_request
       }
     ]
-    force_update = true # force update to ensure the latest version of Karpenter is installed
+    force_update = true # force update to ensure the latest version of Karpenter is
   }
 
   # Metrics server configuration (default addon) ##
