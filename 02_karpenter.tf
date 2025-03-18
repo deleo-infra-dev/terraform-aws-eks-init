@@ -111,13 +111,28 @@ resource "kubectl_manifest" "default_inflate_deploy" {
                 nodeSelectorTerms:
                   - matchExpressions:
                       - { key: "eks.amazonaws.com/compute-type", operator: "NotIn", values: [ "fargate" ] }
+                      - { key: "default", operator: "In", values: [ "true" ] }
+          nodeSelector:
+            default: "true"
+            instance: m7i.xlarge
           containers:
             - name: inflate
               image: public.ecr.aws/eks-distro/kubernetes/pause:3.7
-              resources: {}
+              resources:
+                requests:
+                  cpu: "100m"
+                  memory: "128Mi"
+                limits:
+                  cpu: "500m"
+                  memory: "512Mi"
+          tolerations:
+          - key: "karpenter.sh/provisioned"
+            operator: "Exists"
+            effect: "NoSchedule"
   YAML
   depends_on = [
     helm_release.karpenter_default_node_resources
   ]
 }
+
 
