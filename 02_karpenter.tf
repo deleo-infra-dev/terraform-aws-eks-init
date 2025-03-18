@@ -16,7 +16,7 @@ resource "helm_release" "karpenter_default_node_resources" {
       metadata:
         name: default
       spec:
-        amiFamily: AL2
+        amiFamily: AL2023_x86_64_STANDARD
         role: ${module.eks_init.karpenter.node_iam_role_name}
         subnetSelectorTerms:
         - tags:
