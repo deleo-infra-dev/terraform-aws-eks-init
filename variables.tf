@@ -35,7 +35,7 @@ variable "cluster_version" {
 }
 
 variable "oidc_provider_arn" {
-  description = "oidc provider arn"
+  description = "EKS OIDC 제공자 ARN"
   type        = string
 }
 

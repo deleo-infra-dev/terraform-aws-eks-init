@@ -71,10 +71,11 @@ module "eks_init" {
   source  = "aws-ia/eks-blueprints-addons/aws"
   version = "~> 1.0"
 
-  cluster_name      = module.eks.cluster_name
-  cluster_endpoint  = module.eks.cluster_endpoint
-  cluster_version   = module.eks.cluster_version
-  oidc_provider_arn = module.eks.oidc_provider_arn
+  ## 모듈간 직접 참조 불가
+  cluster_name      = var.cluster_name
+  cluster_endpoint  = var.cluster_endpoint
+  cluster_version   = var.cluster_version
+  oidc_provider_arn = var.oidc_provider_arn
 
   # Fargate 프로필 의존성 - kube-system만 해당
   create_delay_dependencies = var.create_delay_dependencies
