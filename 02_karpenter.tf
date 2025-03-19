@@ -121,7 +121,6 @@ resource "kubectl_manifest" "default_inflate_deploy" {
                 nodeSelectorTerms:
                   - matchExpressions:
                       - { key: "eks.amazonaws.com/compute-type", operator: "NotIn", values: [ "fargate" ] }
-                      - { key: "default", operator: "In", values: [ "true" ] }
           nodeSelector:
             default: "true"
             instance: m7i.xlarge
