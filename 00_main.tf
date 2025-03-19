@@ -51,6 +51,32 @@ locals {
     }
   }
 
+  # Metrics Server 구성에 추가할 내용
+  metrics_server_config = {
+    computeType = "Fargate"
+    tolerations = [
+      {
+        key      = "eks.amazonaws.com/compute-type"
+        operator = "Equal"
+        value    = "fargate"
+        effect   = "NoSchedule"
+      }
+    ]
+  }
+
+  # Karpenter 구성에 추가할 내용
+  karpenter_config = {
+    computeType = "Fargate"
+    tolerations = [
+      {
+        key      = "eks.amazonaws.com/compute-type"
+        operator = "Equal"
+        value    = "fargate"
+        effect   = "NoSchedule"
+      }
+    ]
+  }
+
   ## Karpenter 메모리 구성 ##
   karpenter_memory_request = "512Mi" # Karpenter 작동을 위한 최소 메모리 요청
 }
@@ -110,30 +136,35 @@ module "eks_init" {
     ## Kube-proxy 애드온 구성 (기본 애드온) ##
     kube-proxy = {
       most_recent = true
+      resolve_conflicts_on_create = "OVERWRITE"
+      resolve_conflicts_on_update = "PRESERVE"
+      timeouts = {
+        create = "15m"
+        update = "15m"
+      }
     }
   }
 
   # Karpenter 구성 (기본 애드온)
   enable_karpenter = true
   # Karpenter EC2 인스턴스 프로필 생성
-  karpenter_enable_instance_profile_creation = true
   karpenter = {
     repository_username = data.aws_ecrpublic_authorization_token.token.user_name
     repository_password = data.aws_ecrpublic_authorization_token.token.password
-    # 필요한 경우 명시적 버전 지정
-    # chart_version = var.karpenter_version
+    configuration_values = jsonencode(local.karpenter_config)
     set = [
       {
         name  = "controller.resources.requests.memory"
         value = local.karpenter_memory_request
       }
     ]
-    force_update = true # 최신 버전의 Karpenter가 있는지 확인하기 위해 강제 업데이트
+    force_update = true
   }
 
   # Metrics server 구성 (기본 애드온) ##
   enable_metrics_server = true
   metrics_server = {
+    configuration_values = jsonencode(local.metrics_server_config)
     set = [
       {
         name  = "resources.requests.memory"
