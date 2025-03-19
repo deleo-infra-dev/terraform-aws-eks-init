@@ -1,8 +1,13 @@
+################################################################################
+# 프로바이더 설정
+################################################################################
+
+# EKS 클러스터 인증 데이터 소스
 data "aws_eks_cluster_auth" "this" {
   name = var.cluster_name
 }
 
-# Required for public ECR where Karpenter artifacts are hosted
+# Karpenter 아티팩트가 호스팅되는 퍼블릭 ECR에 필요
 provider "aws" {
   shared_credentials_files = var.shared_credentials_files
   profile                  = var.profile
@@ -10,12 +15,14 @@ provider "aws" {
   alias                    = "virginia"
 }
 
+# 쿠버네티스 프로바이더 설정
 provider "kubernetes" {
   host                   = var.cluster_endpoint
   cluster_ca_certificate = base64decode(var.cluster_ca_certificate)
   token                  = data.aws_eks_cluster_auth.this.token
 }
 
+# kubectl 프로바이더 설정
 provider "kubectl" {
   apply_retry_count      = 5
   host                   = var.cluster_endpoint
@@ -24,6 +31,7 @@ provider "kubectl" {
   token                  = data.aws_eks_cluster_auth.this.token
 }
 
+# Helm 프로바이더 설정
 provider "helm" {
   kubernetes {
     host                   = var.cluster_endpoint
@@ -32,6 +40,7 @@ provider "helm" {
   }
 }
 
+# 테라폼 설정
 terraform {
   required_version = ">= 1.0"
 
@@ -51,10 +60,6 @@ terraform {
     helm = {
       source  = "hashicorp/helm"
       version = ">= 2.9"
-    }
-    fake = {
-      source  = "rayshoo/fake"
-      version = "1.0.0"
     }
   }
 }

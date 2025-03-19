@@ -62,12 +62,6 @@ variable "tags" {
   default     = {}
 }
 
-variable "account_id" {
-  description = "AWS 계정 ID"
-  type        = string
-}
-
-
 variable "create_delay_dependencies" {
   description = "List of dependencies to wait for before creating addons"
   type        = list(string)

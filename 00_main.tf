@@ -1,10 +1,9 @@
 locals {
-
-  ## Fargate resource configurations ##
+  ## Fargate 리소스 구성 ##
   fargate_memory = "512M"
   fargate_cpu    = "0.25"
 
-  ## CoreDNS addon configuration ##
+  ## CoreDNS 애드온 구성 ##
   coredns_addon_config = {
     computeType = "Fargate"
     resources = {
@@ -27,30 +26,38 @@ locals {
       }
     ]
   }
-  ## VPC-CNI addon configuration ##
+
+  ## VPC-CNI 애드온 구성 ##
   vpc_cni_addon_config = {
     env = {
+      # 커스텀 네트워크 구성 활성화
       AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = "true"
       ENI_CONFIG_LABEL_DEF               = "topology.kubernetes.io/zone"
-      ENABLE_PREFIX_DELEGATION           = "true"
-      WARM_PREFIX_TARGET                 = "1"
-      ENABLE_POD_ENI                     = "true"
-      WARM_ENI_TARGET                    = "1"
-      MINIMUM_IP_TARGET                  = "10"
+
+      # 프리픽스 위임 활성화
+      ENABLE_PREFIX_DELEGATION = "true"
+      WARM_PREFIX_TARGET       = "1"
+
+      # Pod ENI 활성화
+      ENABLE_POD_ENI    = "true"
+      WARM_ENI_TARGET   = "1"
+      MINIMUM_IP_TARGET = "10"
     }
     resources = {
       requests = {
-        cpu    = "25m"  # CPU request for the VPC-CNI addon
-        memory = "64Mi" # Memory request for the VPC-CNI addon
+        cpu    = "25m"  # VPC-CNI 애드온의 CPU 요청
+        memory = "64Mi" # VPC-CNI 애드온의 메모리 요청
       }
     }
   }
-  ## Karpenter memory configuration ##
-  karpenter_memory_request = "512Mi" # Minimum memory request for Karpenter to work
+
+  ## Karpenter 메모리 구성 ##
+  karpenter_memory_request = "512Mi" # Karpenter 작동을 위한 최소 메모리 요청
 }
+
 ########################################################
-# Data Sources 
-## - Used to pull images from ECR Public (aws.virginia provider is used to pull images from ECR Public)
+# 데이터 소스
+## - ECR Public에서 이미지를 가져오는 데 사용 (aws.virginia 프로바이더를 사용하여 ECR Public에서 이미지 가져오기)
 ########################################################
 data "aws_ecrpublic_authorization_token" "token" {
   provider = aws.virginia
@@ -58,7 +65,7 @@ data "aws_ecrpublic_authorization_token" "token" {
 
 ########################################################
 # EKS Blueprints Addons
-## - Used to configure the EKS addons
+## - EKS 애드온 구성에 사용
 ########################################################
 module "eks_init" {
   source  = "aws-ia/eks-blueprints-addons/aws"
@@ -69,12 +76,12 @@ module "eks_init" {
   cluster_version   = module.eks.cluster_version
   oidc_provider_arn = module.eks.oidc_provider_arn
 
-  # Fargate profile dependencies - kube-system only
-  create_delay_dependencies = [for prof in var.fargate_profiles : prof.fargate_profile_arn]
+  # Fargate 프로필 의존성 - kube-system만 해당
+  create_delay_dependencies = var.create_delay_dependencies
 
-  # EKS addons configurations
+  # EKS 애드온 구성
   eks_addons = {
-    ## CoreDNS addon configuration (default addon)
+    ## CoreDNS 애드온 구성 (기본 애드온)
     coredns = {
       most_recent                 = true
       configuration_values        = jsonencode(local.coredns_addon_config)
@@ -86,7 +93,7 @@ module "eks_init" {
       }
     }
 
-    ## VPC-CNI addon configuration (default addon) ##
+    ## VPC-CNI 애드온 구성 (기본 애드온) ##
     vpc-cni = {
       before_compute              = true
       most_recent                 = true
@@ -99,29 +106,45 @@ module "eks_init" {
       }
     }
 
-    ## Kube-proxy addon configuration (default addon) ##
-    kube-proxy = {}
+    ## Kube-proxy 애드온 구성 (기본 애드온) ##
+    kube-proxy = {
+      most_recent = true
+    }
   }
 
-  # Karpenter configuration (default addon)
+  # Karpenter 구성 (기본 애드온)
   enable_karpenter = true
-  # karpenter EC2 Instance Profile Creation
+  # Karpenter EC2 인스턴스 프로필 생성
   karpenter_enable_instance_profile_creation = true
   karpenter = {
     repository_username = data.aws_ecrpublic_authorization_token.token.user_name
     repository_password = data.aws_ecrpublic_authorization_token.token.password
+    # 필요한 경우 명시적 버전 지정
+    # chart_version = var.karpenter_version
     set = [
       {
         name  = "controller.resources.requests.memory"
         value = local.karpenter_memory_request
       }
     ]
-    force_update = true # force update to ensure the latest version of Karpenter is
+    force_update = true # 최신 버전의 Karpenter가 있는지 확인하기 위해 강제 업데이트
   }
 
-  # Metrics server configuration (default addon) ##
+  # Metrics server 구성 (기본 애드온) ##
   enable_metrics_server = true
+  metrics_server = {
+    set = [
+      {
+        name  = "resources.requests.memory"
+        value = "64Mi"
+      },
+      {
+        name  = "resources.limits.memory"
+        value = "128Mi"
+      }
+    ]
+  }
 
-  # Resource tagging (default tag) ##
+  # 리소스 태깅 (기본 태그) ##
   tags = var.tags
 }
