@@ -9,3 +9,8 @@
 
 # trunk
 .trunk/**
+
+.vscode/**
+/.vscode/
+/.trunk/
+/.terraform/
