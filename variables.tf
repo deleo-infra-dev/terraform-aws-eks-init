@@ -1,152 +1,65 @@
-################################################################################
-# 자격 증명 프로필
-################################################################################
-variable "profile" {
-  description = "자격 증명 프로필"
-  type        = string
-}
-
-################################################################################
-# 공유 자격 증명 파일
-################################################################################
-variable "shared_credentials_files" {
-  description = "공유 자격 증명 파일"
-  type        = list(string)
-  default     = []
-}
-
-################################################################################
-# AWS 가용 영역
-################################################################################
-variable "azs" {
-  description = "AWS 가용 영역"
-  type        = list(string)
-}
-
-################################################################################
-# EKS 파드 서브넷 ID
-################################################################################
-variable "eks_pod_subnet_ids" {
-  description = "EKS 파드 서브넷 ID"
-  type        = list(string)
-}
-
-################################################################################
-# 클러스터 이름
-################################################################################
-variable "cluster_name" {
-  description = "클러스터 이름"
-  type        = string
-}
-
-################################################################################
-# 클러스터 엔드포인트
-################################################################################
-variable "cluster_endpoint" {
-  description = "클러스터 엔드포인트"
-  type        = string
-}
-
-################################################################################
-# 클러스터 버전
-################################################################################
-variable "cluster_version" {
-  description = "클러스터 버전"
-  type        = string
-}
-
-################################################################################
-# 클러스터 OIDC 제공자 ARN
-################################################################################
-variable "oidc_provider_arn" {
-  description = "EKS OIDC 제공자 ARN"
-  type        = string
-}
-
-################################################################################
-# 클러스터 CA 인증서
-################################################################################
-variable "cluster_ca_certificate" {
-  description = "클러스터 CA 인증서"
-  type        = string
-}
-
-################################################################################
-# Karpenter - 클러스터 기본 보안 그룹 ID
-################################################################################
-variable "cluster_primary_security_group_id" {
-  description = "클러스터 기본 보안 그룹 ID"
-  type        = string
-}
-
-################################################################################
-# Karpenter - 버전
-################################################################################
-variable "karpenter_version" {
-  description = "Karpenter 버전"
-  type        = string
-}
-
-################################################################################
-# 태그
-################################################################################
-variable "tags" {
-  description = "태그"
-  type        = map(string)
+variable  "profile" {
+  description = "credential profile"
+  type        = any
   default     = {}
 }
-
-################################################################################
-# 애드온 생성 지연 의존성
-################################################################################
-variable "create_delay_dependencies" {
-  description = "애드온 생성 지연 의존성"
-  type        = list(string)
-  default     = []
+variable "shared_credentials_files" {
+  description = "shared credentials files"
+  type        = any
+  default     = {}
 }
-
-################################################################################
-# 외부에서 생성된 Karpenter 노드 IAM 역할 이름
-################################################################################
-variable "external_karpenter_node_role_name" {
-  description = "외부에서 생성된 Karpenter 노드 IAM 역할 이름 (제공시 모듈에서 IAM 역할 생성 안함)"
-  type        = string
-  default     = ""
+variable  "azs" {
+  description = "aws_availability_zones"
+  type        = any
+  default     = {}
 }
-
-################################################################################
-# 외부에서 생성된 Karpenter 노드 IAM 역할 ARN
-################################################################################
-variable "external_karpenter_node_role_arn" {
-  description = "외부에서 생성된 Karpenter 노드 IAM 역할 ARN (제공시 모듈에서 IAM 역할 생성 안함)"
-  type        = string
-  default     = ""
+variable "eks_pod_subnet_ids" {
+  description = "eks pod subnet ids"
+  type        = any
+  default     = {}
 }
-
-################################################################################
-# 외부에서 생성된 Karpenter 인스턴스 프로파일 이름
-################################################################################
-variable "external_karpenter_instance_profile_name" {
-  description = "외부에서 생성된 Karpenter 인스턴스 프로파일 이름 (제공시 모듈에서 인스턴스 프로파일 생성 안함)"
-  type        = string
-  default     = ""
+variable "cluster_name" {
+  description = "cluster name"
+  type        = any
+  default     = {}
 }
-
-################################################################################
-# Karpenter IAM 리소스 생성 여부
-################################################################################
-variable "create_karpenter_resources" {
-  description = "Karpenter IAM 리소스 생성 여부"
-  type        = bool
-  default     = true
+variable "cluster_endpoint" {
+  description = "cluster endpoint"
+  type        = any
+  default     = {}
 }
-
-################################################################################
-# Karpenter 컨트롤러 IRSA 생성 여부
-################################################################################
-variable "create_karpenter_controller_irsa" {
-  description = "Karpenter 컨트롤러 IRSA 생성 여부"
-  type        = bool
-  default     = true
+variable "cluster_version" {
+  description = "cluster version"
+  type        = any
+  default     = {}
 }
-
+variable "oidc_provider_arn" {
+  description = "oidc provider arn"
+  type        = any
+  default     = {}
+}
+variable "fargate_profiles" {
+  description = "fargate profiles"
+  type        = any
+  default     = {}
+}
+variable "cluster_ca_certificate" {
+  description = "cluster ca certificate"
+  type        = any
+  default     = {}
+}
+variable "cluster_primary_security_group_id" {
+  description = "cluster primary security group id"
+  type        = any
+  default     = {}
+}
+variable "karpenter_version" {
+  description = "karpenter version for install crd"
+  type        = any
+  default     = {}
+}
+variable "tags" {
+  description = "tags"
+  type        = any
+  default     = {}
+}
