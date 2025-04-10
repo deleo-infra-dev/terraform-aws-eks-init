@@ -14,3 +14,13 @@
 /.vscode/
 /.trunk/
 /.terraform/
+/etc/.terraform/modules/karpenter_irsa/
+/etc/.terraform/modules/modules.json
+/etc/.terraform/providers/registry.terraform.io/hashicorp/aws/5.94.1/darwin_arm64/LICENSE.txt
+/etc/.terraform/providers/registry.terraform.io/hashicorp/aws/5.94.1/darwin_arm64/terraform-provider-aws_v5.94.1_x5
+/etc/.terraform/providers/registry.terraform.io/hashicorp/helm/2.17.0/darwin_arm64/LICENSE.txt
+/etc/.terraform/providers/registry.terraform.io/hashicorp/helm/2.17.0/darwin_arm64/terraform-provider-helm_v2.17.0_x5
+/etc/.terraform/providers/registry.terraform.io/hashicorp/kubernetes/2.36.0/darwin_arm64/LICENSE.txt
+/etc/.terraform/providers/registry.terraform.io/hashicorp/kubernetes/2.36.0/darwin_arm64/terraform-provider-kubernetes_v2.36.0_x5
+/etc/.terraform/providers/registry.terraform.io/hashicorp/null/3.2.3/darwin_arm64/LICENSE.txt
+/etc/.terraform/providers/registry.terraform.io/hashicorp/null/3.2.3/darwin_arm64/terraform-provider-null_v3.2.3_x5
