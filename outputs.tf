@@ -7,6 +7,7 @@ resource "local_file" "prevent_destroy_marker" {
   }
 }
 
+<<<<<<< Updated upstream
 output "prevent_destroy_marker" {
   description = "모듈 삭제 방지를 위한 마커"
   value       = local_file.prevent_destroy_marker.filename
@@ -27,3 +28,14 @@ output "karpenter_iam_role_arn" {
   value = aws_iam_role.karpenter_node.arn
 }
 
+=======
+output "fake_output" {
+  description = "fake output for prevent destroy module"
+  value       = fake.fake_resource.value
+}
+
+# output "karpenter" {
+#   description = "Map of attributes of the Helm release and IRSA created"
+#   value = module.eks_init.karpenter
+# }
+>>>>>>> Stashed changes
