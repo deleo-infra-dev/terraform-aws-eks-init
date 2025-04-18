@@ -21,3 +21,8 @@ output "karpenter_iam_role" {
   description = "IAM role name for Karpenter"
   value = aws_iam_role.karpenter_node.name
 }
+
+output "karpenter_iam_role_arn" {
+  description = "IAM role ARN for Karpenter"
+  value = aws_iam_role.karpenter_node.arn
+}
