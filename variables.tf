@@ -117,3 +117,21 @@ variable "karpenter_env" {
   type        = string
   default     = "dev"
 }
+
+variable coreDNS-version {
+    description = "CoreDNS version"
+    type        = string
+    default     = "v1.11.4-eksbuild.2"
+}
+
+variable "vpc-cni-version" {
+    description = "VPC CNI version"
+    type        = string
+    default     = "v1.19.3-eksbuild.1"
+}
+
+variable "kube-proxy-version" {
+    description = "Kube Proxy version"
+    type        = string
+    default     = "v1.30.9-eksbuild.3"
+}

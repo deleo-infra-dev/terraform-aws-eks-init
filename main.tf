@@ -1,46 +1,12 @@
-################################################################################
-# EKS Init
-################################################################################
-
 data "aws_ecrpublic_authorization_token" "token" {
   provider = aws.virginia
 }
 
-resource "kubernetes_config_map" "aws_logging" {
-  metadata {
-    name      = "aws-logging"
-    namespace = "kube-system"
-  }
+data "aws_ecr_authorization_token" "private_token" {}
 
-  data = {
-    "log-level" = "info" # 로그 레벨 설정: debug, info, warn, error 중 선택
-    # 추가 로깅 설정이 필요한 경우 여기에 추가
-  }
-}
 
-locals {
-  region                   = var.region
-  profile                  = var.profile
-  shared_credentials_files = var.shared_credentials_files
-  eks_pod_subnet_ids       = var.eks_pod_subnet_ids
-  azs                      = var.azs
 
-  cluster_name                      = var.cluster_name
-  cluster_endpoint                  = var.cluster_endpoint
-  cluster_version                   = var.cluster_version
-  oidc_provider_arn                 = var.oidc_provider_arn
-  cluster_ca_certificate            = var.cluster_ca_certificate
-  cluster_primary_security_group_id = var.cluster_primary_security_group_id
 
-  karpenter_version = var.karpenter_version
-
-  karpenter_env                = var.karpenter_env
-  karpenter_ami_family         = var.karpenter_ami_family
-  karpenter_instance_families  = var.karpenter_instance_families
-  karpenter_instance_sizes     = var.karpenter_instance_sizes
-  karpenter_node_capacity_type = var.karpenter_node_capacity_type
-
-}
 
 module "eks_init" {
   source  = "aws-ia/eks-blueprints-addons/aws"
@@ -51,7 +17,7 @@ module "eks_init" {
   cluster_version   = local.cluster_version
   oidc_provider_arn = local.oidc_provider_arn
 
-  # We want to wait for the Fargate profiles to be deployed first
+  # Fargate 프로필의 ARN 목록을 통해 Fargate 프로필이 생성될 때까지 대기
   create_delay_dependencies = [for prof in var.fargate_profiles : prof.fargate_profile_arn]
 
   eks_addons = {
@@ -121,8 +87,9 @@ module "eks_init" {
     } ## vpc-cni (end)
 
     kube-proxy = {
-      most_recent = true
-      preserve    = true
+      #most_recent = true
+      addon_version = var.kube-proxy-version # "v1.19.3-eksbuild.1" # This can be overridden per addon if required
+      preserve      = true
       configuration_values = jsonencode({
         # kube-proxy 리소스 설정
         resources = {
