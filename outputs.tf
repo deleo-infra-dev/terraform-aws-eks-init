@@ -7,7 +7,18 @@ output "fake_output" {
   value       = fake.fake_resource.value
 }
 
-# output "karpenter" {
-#   description = "Map of attributes of the Helm release and IRSA created"
-#   value = module.eks_init.karpenter
-# }
+output "karpenter_version" {
+  value = var.karpenter_version
+}
+
+output "karpenter_node_role_arn" {
+  value = aws_iam_role.karpenter_node_role.arn
+}
+
+output "karpenter_arn
+  value = aws_iam_role.karpenter_node_role.arn
+}
+
+output "karpenter_ami_family" {
+  value = var.karpenter_ami_family
+}

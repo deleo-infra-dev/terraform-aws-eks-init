@@ -88,7 +88,7 @@ variable "tags" {
 variable "karpenter_ami_family" {
   description = "AMI Family (%s_%s) for Karpenter EC2 worker nodes"
   type        = string
-  default = "AL2023"
+  default = "AL2"
 }
 # Karpenter Node Capacity Type
 variable "karpenter_node_capacity_type" {

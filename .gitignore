@@ -24,3 +24,7 @@
 /etc/.terraform/providers/registry.terraform.io/hashicorp/kubernetes/2.36.0/darwin_arm64/terraform-provider-kubernetes_v2.36.0_x5
 /etc/.terraform/providers/registry.terraform.io/hashicorp/null/3.2.3/darwin_arm64/LICENSE.txt
 /etc/.terraform/providers/registry.terraform.io/hashicorp/null/3.2.3/darwin_arm64/terraform-provider-null_v3.2.3_x5
+
+
+.idea
+.terraform.lock.hcl

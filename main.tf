@@ -13,31 +13,31 @@ resource "kubernetes_config_map" "aws_logging" {
   }
 
   data = {
-    "log-level" = "info"  # 로그 레벨 설정: debug, info, warn, error 중 선택
+    "log-level" = "info" # 로그 레벨 설정: debug, info, warn, error 중 선택
     # 추가 로깅 설정이 필요한 경우 여기에 추가
   }
 }
 
 locals {
-  region = var.region
-  profile = var.profile
+  region                   = var.region
+  profile                  = var.profile
   shared_credentials_files = var.shared_credentials_files
-  eks_pod_subnet_ids = var.eks_pod_subnet_ids
-  azs = var.azs
-  
-  cluster_name = var.cluster_name
-  cluster_endpoint  = var.cluster_endpoint
-  cluster_version   = var.cluster_version
-  oidc_provider_arn = var.oidc_provider_arn
-  cluster_ca_certificate = var.cluster_ca_certificate
+  eks_pod_subnet_ids       = var.eks_pod_subnet_ids
+  azs                      = var.azs
+
+  cluster_name                      = var.cluster_name
+  cluster_endpoint                  = var.cluster_endpoint
+  cluster_version                   = var.cluster_version
+  oidc_provider_arn                 = var.oidc_provider_arn
+  cluster_ca_certificate            = var.cluster_ca_certificate
   cluster_primary_security_group_id = var.cluster_primary_security_group_id
 
   karpenter_version = var.karpenter_version
-  
-  karpenter_env = var.karpenter_env
-  karpenter_ami_family = var.karpenter_ami_family
-  karpenter_instance_families = var.karpenter_instance_families
-  karpenter_instance_sizes = var.karpenter_instance_sizes
+
+  karpenter_env                = var.karpenter_env
+  karpenter_ami_family         = var.karpenter_ami_family
+  karpenter_instance_families  = var.karpenter_instance_families
+  karpenter_instance_sizes     = var.karpenter_instance_sizes
   karpenter_node_capacity_type = var.karpenter_node_capacity_type
 
 }
@@ -60,17 +60,17 @@ module "eks_init" {
       before_compute = true
       #most_recent = true
       addon_version = "v1.11.4-eksbuild.2"
-      preserve    = true
+      preserve      = true
       configuration_values = jsonencode({
-        computeType = "Fargate"
+        computeType  = "Fargate"
         replicaCount = 2
         resources = {
           limits = {
-            cpu = "0.25"
+            cpu    = "0.25"
             memory = "512M"
           }
           requests = {
-            cpu = "0.25"
+            cpu    = "0.25"
             memory = "512M"
           }
         }
@@ -85,9 +85,9 @@ module "eks_init" {
     vpc-cni = {
       before_compute = true # This will make sure the VPC CNI is rolled out first before deploying the addons
       #most_recent    = true
-      addon_version = "v1.19.3-eksbuild.1"  # This can be overridden per addon if required
-      preserve      = true
-      resolve_conflicts        = "OVERWRITE"  # This is required when we want to overwrite the CNI configmap
+      addon_version            = "v1.19.3-eksbuild.1" # This can be overridden per addon if required
+      preserve                 = true
+      resolve_conflicts        = "OVERWRITE" # This is required when we want to overwrite the CNI configmap
       service_account_role_arn = module.vpc_cni_irsa.iam_role_arn
 
       # VPC-CNI 가 필요한 리소스(IRSA) 가 준비된 후 설치!
@@ -99,8 +99,8 @@ module "eks_init" {
         env = {
           AWS_VPC_K8S_CNI_CUSTOM_NETWORK_CFG = "true"
           ENI_CONFIG_LABEL_DEF               = "topology.kubernetes.io/zone"
-          ENABLE_PREFIX_DELEGATION = "true"
-          WARM_PREFIX_TARGET       = "1"
+          ENABLE_PREFIX_DELEGATION           = "true"
+          WARM_PREFIX_TARGET                 = "1"
         }
 
         resources = {
@@ -140,18 +140,18 @@ module "eks_init" {
   }
 
   enable_karpenter = false
-  # karpenter = {
-  #   repository_username = data.aws_ecrpublic_authorization_token.token.user_name
-  #   repository_password = data.aws_ecrpublic_authorization_token.token.password
-  #   set = [
-  #     {
-  #       name = "controller.resources.requests.memory"
-  #       value = "512Mi"
-  #     }
-  #   ]
-  # }
-  
-  enable_metrics_server = true  # 메트릭스 서버 활성화 (Karpenter 설치 전에 활성화)
+  karpenter = {
+    repository_username = data.aws_ecrpublic_authorization_token.token.user_name
+    repository_password = data.aws_ecrpublic_authorization_token.token.password
+    set = [
+      {
+        name  = "controller.resources.requests.memory"
+        value = "512Mi"
+      }
+    ]
+  }
+
+  enable_metrics_server = true # 메트릭스 서버 활성화 (Karpenter 설치 전에 활성화)
 
   tags = var.tags
 }
@@ -230,9 +230,6 @@ resource "null_resource" "verify_cni_initialization" {
 ################################################################################
 # Karpenter 서비스 계정용 IAM 역할 (IRSA)
 ################################################################################
-variable "oidc_provider_arn" {
-  default = ""
-}
 module "karpenter_irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
   version = "~> 5.20"
@@ -281,8 +278,8 @@ data "aws_eks_cluster" "cluster" {
 }
 
 resource "aws_iam_role_policy" "eks_ecr_auth" {
-  name   = "eks-ecr-public-auth"
-  role   = split("/", data.aws_eks_cluster.cluster.role_arn)[1]
+  name = "eks-ecr-public-auth"
+  role = split("/", data.aws_eks_cluster.cluster.role_arn)[1]
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -322,18 +319,16 @@ resource "helm_release" "karpenter_default_node_resources" {
       metadata:
         name: default
       spec:
-        amiFamily: ${local.karpenter_ami_family}
-        role: ${module.eks_init.karpenter.node_iam_role_name}
+        amiFamily: var.karpenter_ami_family
+        role: ${aws_iam_role.karpenter_node_role.arn}
         subnetSelectorTerms:
         - tags:
-            karpenter.sh/discovery: ${local.cluster_name}
+            karpenter.sh/discovery: ${var.cluster_name}
         securityGroupSelectorTerms:
         - tags:
-            karpenter.sh/discovery: ${local.cluster_name}
+            karpenter.sh/discovery: ${var.cluster_name}
         tags:
-          karpenter.sh/discovery: ${local.cluster_name}
-
-
+          karpenter.sh/discovery: ${var.cluster_name}
     - apiVersion: karpenter.sh/v1beta1
       kind: NodePool
       metadata:
@@ -345,38 +340,39 @@ resource "helm_release" "karpenter_default_node_resources" {
               default: 'true'
               consolidation: 'true'
               critical: 'false'
-              instance-category: 'm'
+              instance: m7i.xlarge
               capacity: on-demand
           spec:
             nodeClassRef:
               name: default
             requirements:
-            - key: karpenter.k8s.aws/instance-family
+            - key: node.kubernetes.io/instance-type
               operator: In
-              values: ["m7i", "m7i-flex"]
-            - key: karpenter.k8s.aws/instance-size
-              operator: In
-              values: ${jsonencode(local.karpenter_instance_sizes)}
+              values: ["m7i.xlarge"]
             - key: karpenter.k8s.aws/instance-hypervisor
               operator: In
               values: ["nitro"]
+            - key: topology.kubernetes.io/zone
+              operator: In
+              values: ${jsonencode(var.azs)}
             - key: kubernetes.io/arch
               operator: In
               values: ["amd64"]
+            - key: "karpenter.sh/capacity-type" # If not included, the webhook for the AWS cloud provider will default to on-demand
+              operator: In
+              values: ["on-demand"]
             - key: kubernetes.io/os
               operator: In
               values:	["linux"]
-            - key: "karpenter.sh/capacity-type" # If not included, the webhook for the AWS cloud provider will default to on-demand
-              operator: In
-              values: ${jsonencode(local.karpenter_node_capacity_type)}
-            - key: topology.kubernetes.io/zone
-              operator: In
-              values: ${jsonencode(local.azs)}
-            
+            - key: eks.amazonaws.com/compute-type # [ADD] 2025/03/18
+              operator: NotIn
+              values:
+                - fargate
         disruption:
           consolidationPolicy: WhenUnderutilized
           expireAfter: 4320h # 180 Days = 180 * 24 Hours
-
+        # Karpenter provides the ability to specify a few additional Kubelet args.
+        # These are all optional and provide support for additional customization and use cases.
         kubelet:
           maxPods: 672
     EOF
@@ -386,73 +382,6 @@ resource "helm_release" "karpenter_default_node_resources" {
   ]
 }
 
-################################################################################
-# Karpenter NodePool 생성
-################################################################################
-resource "kubectl_manifest" "karpenter_node_pool" {
-  yaml_body = <<-YAML
-apiVersion: karpenter.sh/v1beta1
-kind: NodePool
-metadata:
-  name: default
-spec:
-  template:
-    metadata:
-      labels:
-        default: 'true'
-        consolidation: 'true'
-        critical: 'false'
-        instance-category: 'm'
-        capacity: on-demand
-    spec:
-      nodeClassRef:
-        name: default
-      requirements:
-      - key: kubernetes.io/arch
-        operator: In
-        values: ["amd64"]  # ARM64 대신 amd64만 사용
-      - key: kubernetes.io/os
-        operator: In
-        values:	["linux"] # 현재 클러스터에서 사용하는 운영체제
-      - key: karpenter.k8s.aws/instance-hypervisor
-        operator: In
-        values: ["nitro"] # 현재 클러스터에서 사용하는 인스턴스 타입 (nitro, hvm)
-      - key: topology.kubernetes.io/zone
-        operator: In
-        values: ${jsonencode(local.azs)} # 현재 클러스터에서 사용하는 가용 영역
-      - key: karpenter.sh/capacity-type
-        operator: In
-        values: ${jsonencode(local.karpenter_node_capacity_type)} # 현재 클러스터에서 사용하는 노드 용량 유형 (on-demand, spot)
-      - key: karpenter.k8s.aws/instance-generation
-        operator: Gt
-        values: ["2"]
-    
-      - key: karpenter.k8s.aws/instance-category
-        operator: In
-        values: ${jsonencode(local.karpenter_instance_families)}  # 현재 클러스터에서 사용하는 인스턴스 카테고리 (c, m, r, t)
-      - key: karpenter.k8s.aws/instance-family
-        operator: In
-        values: ["m7i-flex", "m7i"]        # m7i-flex와 m7i 인스턴스 허용
-
-      - key: karpenter.k8s.aws/instance-size
-        operator: In
-        values: ${jsonencode(local.karpenter_instance_sizes)} # 현재 클러스터에서 사용하는 인스턴스 크기 (xlarge, 2xlarge, 3xlarge, 4xlarge, 5xlarge, 6xlarge, 7xlarge, 8xlarge, 9xlarge, 10xlarge)
-      kubelet:
-        maxPods: 672
-        
-  limits:
-    cpu: "2000"
-    memory: "8000Gi" 
-
-  disruption:
-    consolidationPolicy: WhenUnderutilized
-    expireAfter: 4320h # 180 Days = 180 * 24 Hours (180일, 4320시간, 6개월), 노드 종료 전 최대 6개월 동안 대기 (안정성 중시)
-YAML
-
-  depends_on = [
-    helm_release.karpenter_default_node_resources
-  ]
-}
 
 # Example deployment using the [pause image](https://www.ianlewis.org/en/almighty-pause-container)
 resource "kubectl_manifest" "default_inflate_deploy" {
@@ -471,19 +400,6 @@ resource "kubectl_manifest" "default_inflate_deploy" {
           labels:
             app: inflate
         spec:
-          tolerations:
-          - key: "node-role.kubernetes.io/worker"
-            operator: "Exists"
-            effect: "NoSchedule"
-          nodeSelector:
-            default: "true"
-            consolidation: "true"
-            critical: "false"
-            instance-category: "m"
-            capacity: "on-demand"
-            kubernetes.io/os: "linux"
-            kubernetes.io/arch: "amd64"
-            eks.amazonaws.com/compute-type: "ec2"
           terminationGracePeriodSeconds: 0
           affinity:
             podAntiAffinity:
@@ -495,22 +411,13 @@ resource "kubectl_manifest" "default_inflate_deploy" {
                     values:
                     - inflate
                 topologyKey: kubernetes.io/hostname
-            nodeAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                nodeSelectorTerms:
-                  - matchExpressions:
-                      - key: eks.amazonaws.com/compute-type
-                        operator: NotIn
-                        values:
-                          - fargate
           containers:
             - name: inflate
               image: public.ecr.aws/eks-distro/kubernetes/pause:3.7
               resources: {}
   YAML
   depends_on = [
-    helm_release.karpenter_default_node_resources,
-    kubectl_manifest.karpenter_node_pool
+    helm_release.karpenter_default_node_resources
   ]
 }
 
@@ -534,12 +441,12 @@ resource "helm_release" "karpenter" {
   version    = var.karpenter_version
   namespace  = "karpenter"
 
-  wait       = true
+  wait = true
 
-  atomic           = false  # 차트 설치 중 오류 발생 시 롤백 옵션
-  cleanup_on_fail  = true   # 차트 설치 실패 시 롤백 옵션
-  wait_for_jobs    = true   # 차트 설치 완료 후 작업 대기 옵션
-  max_history      = 3      # 차트 설치 이력 최대 이력
+  atomic          = false # 차트 설치 중 오류 발생 시 롤백 옵션
+  cleanup_on_fail = true  # 차트 설치 실패 시 롤백 옵션
+  wait_for_jobs   = true  # 차트 설치 완료 후 작업 대기 옵션
+  max_history     = 3     # 차트 설치 이력 최대 이력
 
   set {
     name  = "settings.clusterName"
@@ -589,12 +496,7 @@ resource "helm_release" "karpenter" {
     value = "true"
   }
 
-  # # PDB
-  # set {
-  #   name  = "podDisruptionBudget.minAvailable"
-  #   value = "1"
-  # }
-    set {
+  set {
     name  = "podDisruptionBudget.enabled"
     value = "false"
   }
@@ -668,7 +570,7 @@ resource "aws_iam_role_policy_attachment" "karpenter_node_policy" {
     "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy",
     "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",
     "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
-    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",  # 프라이빗 ECR 접근용
+    "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly",          # 프라이빗 ECR 접근용
     "arn:aws:iam::aws:policy/AmazonElasticContainerRegistryPublicReadOnly" # 퍼블릭 ECR 접근에 필요
   ])
 
@@ -898,12 +800,12 @@ YAML
 ################################################################################
 resource "null_resource" "setup_karpenter_webhooks" {
   depends_on = [
-    helm_release.karpenter  # 또는 실제 사용 중인 Karpenter 리소스 이름
+    helm_release.karpenter # 또는 실제 사용 중인 Karpenter 리소스 이름
   ]
 
   # 변경 사항이 있을 때만 실행되도록 트리거 추가
   triggers = {
-    always_run = timestamp()  # 항상 실행되도록 설정
+    always_run = timestamp() # 항상 실행되도록 설정
   }
 
   provisioner "local-exec" {

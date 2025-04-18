@@ -10,7 +10,7 @@ resource "helm_release" "eni_config" {
   version    = "2.0.0"
 
   # ENI 구성 템플릿 적용
-  values = [templatefile("${path.module}/eni_config.tftpl", {
+  values = [templatefile("${path.module}/templates/eni_config.tftpl", {
     # 가용 영역별 ENI 구성 매핑
     eni_configs = zipmap(var.azs, var.eks_pod_subnet_ids),
     # 보안 그룹 구성
