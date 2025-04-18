@@ -323,12 +323,12 @@ resource "helm_release" "karpenter_default_node_resources" {
         role: ${aws_iam_role.karpenter_node_role.arn}
         subnetSelectorTerms:
         - tags:
-            karpenter.sh/discovery: ${var.cluster_name}
-        securityGroupSelectorTerms:
+            karpenter.sh/discovery: ${local.cluster_name}
+        securityGroupSelectorTerms:`
         - tags:
-            karpenter.sh/discovery: ${var.cluster_name}
+            karpenter.sh/discovery: ${local.cluster_name}
         tags:
-          karpenter.sh/discovery: ${var.cluster_name}
+          karpenter.sh/discovery: ${local.cluster_name}
     - apiVersion: karpenter.sh/v1beta1
       kind: NodePool
       metadata:
@@ -354,7 +354,7 @@ resource "helm_release" "karpenter_default_node_resources" {
               values: ["nitro"]
             - key: topology.kubernetes.io/zone
               operator: In
-              values: ${jsonencode(var.azs)}
+              values: ${jsonencode(local.azs)}
             - key: kubernetes.io/arch
               operator: In
               values: ["amd64"]
