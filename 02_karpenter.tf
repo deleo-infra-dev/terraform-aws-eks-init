@@ -1,4 +1,44 @@
 ################################################################################
+# Karpenter Node IAM Role
+################################################################################
+
+data "aws_iam_policy_document" "karpenter_assume_role" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "karpenter_node" {
+  name               = "KarpenterNodeRole-${var.cluster_name}"
+  assume_role_policy = data.aws_iam_policy_document.karpenter_assume_role.json
+
+}
+
+resource "aws_iam_role_policy_attachment" "karpenter_node_eks_worker" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+  role       = aws_iam_role.karpenter_node.name
+}
+
+resource "aws_iam_role_policy_attachment" "karpenter_node_ecr_read" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.karpenter_node.name
+}
+
+resource "aws_iam_role_policy_attachment" "karpenter_node_cni" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+  role       = aws_iam_role.karpenter_node.name
+}
+
+resource "aws_iam_instance_profile" "karpenter_node" {
+  name = "KarpenterNodeInstanceProfile-${var.cluster_name}"
+  role = aws_iam_role.karpenter_node.name
+}
+################################################################################
 # Karpenter
 ################################################################################
 
@@ -17,7 +57,7 @@ resource "helm_release" "karpenter_default_node_resources" {
         name: default
       spec:
         amiFamily: AL2
-        role: ${module.eks_init.karpenter.node_iam_role_name}
+        role: ${aws_iam_role.karpenter_node.name}
         subnetSelectorTerms:
         - tags:
             karpenter.sh/discovery: ${var.cluster_name}
