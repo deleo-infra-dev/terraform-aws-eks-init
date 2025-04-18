@@ -30,3 +30,4 @@
 /etc/.terraform/providers/registry.terraform.io/hashicorp/null/3.2.3/darwin_arm64/LICENSE.txt
 /etc/.terraform/providers/registry.terraform.io/hashicorp/null/3.2.3/darwin_arm64/terraform-provider-null_v3.2.3_x5
 
+.terraform.lock.hcl
