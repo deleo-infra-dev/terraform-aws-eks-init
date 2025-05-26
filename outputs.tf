@@ -9,12 +9,6 @@ output "eks_addons" {
 ################################################################################
 # Karpenter
 ################################################################################
-# output "karpenter" {
-#   description = "Map of attributes of the Helm release and IRSA created"
-#   value       = module.eks_init.karpenter
-# }
-
-
 output "karpenter" {
   description = "Map of attributes of the Helm release and IRSA created"
   value       = try(module.eks_init.karpenter, null)

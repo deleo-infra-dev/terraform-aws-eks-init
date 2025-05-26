@@ -22,6 +22,8 @@ locals {
   oidc_provider_arn = var.oidc_provider_arn # OIDC Provider ARN 
 
   # ------------------------------------------------------------ #
+  # EKS Addons Version (EKS Addons 버전 설정 - 별도 정의)
+  # ------------------------------------------------------------ #
 
   coredns_version        = var.coredns_version        # CoreDNS Version
   vpc_cni_version        = var.vpc_cni_version        # VPC CNI Version

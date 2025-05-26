@@ -22,6 +22,7 @@ module "eks_init" {
 
   eks_addons = {
 
+    ## CoreDNS ##
     coredns = {
       before_compute = true
       addon_version  = var.coredns_version
@@ -48,6 +49,7 @@ module "eks_init" {
       }
     } # coredns (end)
 
+    ## VPC CNI ##
     vpc-cni = {
       before_compute           = true                  # This will make sure the VPC CNI is rolled out first before deploying the addons
       addon_version            = local.vpc_cni_version # This can be overridden per addon if required
@@ -82,6 +84,7 @@ module "eks_init" {
     } ## vpc-cni (end)
 
 
+    ## Kube Proxy ##
     kube-proxy = {
       addon_version = local.kube_proxy_version
       preserve      = true
@@ -126,25 +129,6 @@ module "eks_init" {
       {
         name  = "controller.resources.requests.memory"
         value = "512Mi"
-      }
-    ]
-
-  } ## karpenter (end)
-
-  ## Metrics Server ##
-  enable_metrics_server = true # Metrics Server 설치 여부
-
-  # define the dependencies (자기참조가 될 수 있어 삭제)
-
-  metrics_server = {
-    addon_version = local.metrics_server_version # Metrics Server 버전 설정
-    preserve      = true                         # Metrics Server 설치 시, 기존 설정 덮어쓰기 방지
-
-    # Metrics Server 설정 예시 - 메모리 설정 (Controller, Node) - Fargate 프로필 사용 시, 메모리 설정 필요
-    set = [
-      {
-        name  = "controller.resources.requests.memory"
-        value = "128Mi"
       },
       {
         name  = "controller.resources.requests.cpu"
@@ -159,7 +143,18 @@ module "eks_init" {
         value = "500m"
       }
     ]
-  } ## metrics-server (end)
+
+  } ## karpenter (end)
+
+  ## Metrics Server ##
+  enable_metrics_server = true # Metrics Server 설치 여부
+
+  # define the dependencies (자기참조가 될 수 있어 삭제)
+
+  metrics_server = {
+    addon_version = local.metrics_server_version # Metrics Server 버전 설정
+    preserve      = true                         # Metrics Server 설치 시, 기존 설정 덮어쓰기 방지
+  }                                              # metrics-server (end)
 
   tags = var.tags
 }
