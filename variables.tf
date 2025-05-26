@@ -1,119 +1,155 @@
-# Profile
-variable  "profile" {
-  description = "credential profile"
-  type        = string
-  default     = "deleokr"
-}
-# Region
+################################################################################
+# AWS Region
+################################################################################
 variable "region" {
-  description = "aws region"
-  type    = string
-  default = "ap-northeast-2"
-}
-# Shared Credentials Files
-variable "shared_credentials_files" {
-  description = "shared credentials files"
-  type        = list(string)
-  default     = ["$HOME/.aws/credentials"]
-}
-# Availability Zones
-variable  "azs" {
-  description = "aws_availability_zones"
-  type        = list(string)
-  default     = ["ap-northeast-2a", "ap-northeast-2b", "ap-northeast-2c"]
-}
-# EKS Pod Subnet IDs
-variable "eks_pod_subnet_ids" {
-  description = "eks pod subnet ids"
-  type        = list(string)
-   default     = ["subnet-xxxxxx1", "subnet-xxxxxx2", "subnet-xxxxxx3"]  # 각 가용영역에 대한 실제 서브넷 ID
-}
-# EKS Cluster Name
-variable "cluster_name" {
-  description = "cluster name"
+  description = "AWS region"
   type        = string
-  default     = "temp-eks"
-}
-# EKS Cluster Endpoint
-variable "cluster_endpoint" {
-  description = "cluster endpoint"
-  type        = string
-  default     = "https://test-eks.ap-northeast-2.eks.amazonaws.com"
-}
-# EKS Cluster Version
-variable "cluster_version" {
-  description = "cluster version"
-  type        = string
-  default     = "1.30"
-}
-# OIDC Provider ARN
-variable "oidc_provider_arn" {
-  description = "oidc provider arn"
-  type        = string
-  default     = "arn:aws:iam::123456789012:oidc-provider/oidc.eks.ap-northeast-2.amazonaws.com/id/12345678901234567890123456789012"
+  default     = "ap-northeast-2"
 }
 
+################################################################################
+# AWS Profile
+################################################################################
+variable "profile" {
+  description = "AWS credential profile"
+  type        = string
+  default     = "deleoec"
+}
+
+################################################################################
+# AWS Shared Credentials Files
+################################################################################
+variable "shared_credentials_files" {
+  description = "AWS shared credentials files"
+  type        = list(string)
+  default     = ["~/.aws/credentials"]
+}
+
+################################################################################
+# AWS Availability Zones
+################################################################################
+variable "azs" {
+  description = "AWS availability zones"
+  type        = list(string)
+  default     = []
+}
+
+################################################################################
+# EKS Pod Subnet IDs
+################################################################################
+variable "eks_pod_subnet_ids" {
+  description = "EKS Pod Subnet IDs"
+  type        = list(string)
+  default     = []
+}
+
+################################################################################
+# EKS Cluster
+################################################################################
+variable "cluster_name" {
+  description = "EKS cluster name"
+  type        = string
+}
+
+################################################################################
+# EKS Cluster Endpoint
+################################################################################
+variable "cluster_endpoint" {
+  description = "EKS cluster endpoint"
+  type        = string
+}
+
+################################################################################
+# EKS Cluster Version
+################################################################################
+variable "cluster_version" {
+  description = "EKS cluster version"
+  type        = string
+}
+
+################################################################################
+# OIDC Provider ARN
+################################################################################
+variable "oidc_provider_arn" {
+  description = "OIDC provider ARN"
+  type        = string
+}
+
+################################################################################
 # Fargate Profiles
+################################################################################
 variable "fargate_profiles" {
-  description = "fargate profiles"
-  type        = any
+  description = "Fargate profiles"
+  type        = map(any)
   default     = {}
 }
-# Cluster CA Certificate
+
+################################################################################
+# EKS Cluster CA Certificate
+################################################################################
 variable "cluster_ca_certificate" {
-  description = "cluster ca certificate"
+  description = "EKS cluster CA certificate"
   type        = string
-  default     = "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURGekNDQWYrZ0F3SUJBZ0lVSUdyWnE2dnZYeG9DbWRrRzM3UHVmdUNhUFZzd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0d6RVpNQmNHQTFVRUF3d1FkR1Z6ZEM1bGVHRnRjR3hsTG1OdmJUQWVGdzB5TlRBME1EUXdNVE0wTURSYQpGdzB5TmpBME1EUXdNVE0wTURSYU1Cc3hHVEFYQmdOVkJBTU1FSFJsYzNRdVpYaGhiWEJzWlM1amIyMHdnZ0VpCk1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRQ3k1YnA3OGxzUTNSQlNYSGtqa3BMSUFrTnoKQTNrOUE1MHdBclQyQWoxU1dPOGwrbWNzMUl1cllsemJQRGRPVUJ5Q29tOUdWdWlidkIvNWI4V1VuVXdWTW1LYgpmL3VTM0JDMGkycWJpMUdLQmc1NC9CRU5NNysyak84OGpRVXovWW42a3QzcmNZcjVFU2YrSHFUb0t1d1NONXppCnVpOTRuMk1kblJHd1BxVGdkWG5RaFNCQ2NGQXlBNWxsZU1BVjBjdmd1VzFleCtiSlRnbUVBVDZ1UDRSa3VXTTEKTFVUZFJIOEdZZW9lQUtuY091ei9URnBVaHFMQXJIbHFoK0g0eHJ3UWVjcytGeklyY3M2eXJQbG5CV3pSc0dFagpFVGJIMzFleTZoWnFzQ3F4OG5pSmFlc2N6Tm0wZlR5ZWRXL2FpRDJtbVhZTXpTdmZZOTVlM3FFK0NpNjFBZ01CCkFBR2pVekJSTUIwR0ExVWREZ1FXQkJRajhhbXB3ajA1SDRJUGQvZ1AyQ1lrRzhkSFhUQWZCZ05WSFNNRUdEQVcKZ0JRajhhbXB3ajA1SDRJUGQvZ1AyQ1lrRzhkSFhUQVBCZ05WSFJNQkFmOEVCVEFEQVFIL01BMEdDU3FHU0liMwpEUUVCQ3dVQUE0SUJBUUNUWGpJM0ZjMmhvTnRDS2VUM3FEUUlvN3RwemNrOHRNWEtsZUR5bEI4NkkvcVEwNzNoCjErVzlzS2RJVmNqMkxDbVVhdnZqVWRGU0JRMlBZYUM0ZjJmekdMa09vZ0JtajNzOHd6RStQVmluRitrQVRpT1kKWXpFVWZqenlQV2FKVnNyRFF4OUNZS3R0Sjh2cDFFdjZlMFgzME9NOWxHZnEvQUU0aHUrTkZUTDJneXp4Njh1awpqS3pYejZjR01Ecy9ScmNkMFplenpUbnNLYnVpK2xXZmZLVGdVSXV1QWRzbnpQVnlKR0RMaDRmNTJRQWhrNS9MClhObW1jRkRMbGUrZVNSZUxneTdHRm5lK2ZEcjFIc2QyMlUzbkFMNnlKbS9adTFkZEZ0eDQ1cmNSbnpYZ2tMZTkKdi9TMmxMMHNFNnB4ZDJKOEJpcHdzN0FCWXFyNGhwTW1YSlRwCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K"
 }
-# Cluster Primary Security Group ID
+
+################################################################################
+# EKS Cluster Primary Security Group ID
+################################################################################
 variable "cluster_primary_security_group_id" {
-  description = "cluster primary security group id"
+  description = "EKS cluster primary security group ID"
   type        = string
-  default     = "sg-00000000000000000"
 }
+
+################################################################################
 # Karpenter Version
+################################################################################
 variable "karpenter_version" {
-  description = "karpenter version for install crd"
+  description = "Karpenter version for install CRD"
   type        = string
-  default     = "0.37.7"
+  default     = "0.37.0"
 }
+
+################################################################################
 # Tags
+################################################################################
 variable "tags" {
-  description = "tags"
+  description = "Tags"
   type        = map(string)
   default     = {}
-
 }
-# Karpenter AMI Family
-variable "karpenter_ami_family" {
-  description = "AMI Family (%s_%s) for Karpenter EC2 worker nodes"
+
+################################################################################
+# CoreDNS Version
+################################################################################
+variable "coredns_version" {
+  description = "CoreDNS version"
   type        = string
-  default = "AL2"
-}
-# Karpenter Node Capacity Type
-variable "karpenter_node_capacity_type" {
-  description = "Karpenter Node Capacity Type"
-  type        = list(string)
-  default     = ["on-demand"]
+  default     = "v1.11.4-eksbuild.2"
 }
 
-# Karpenter Instance Families
-variable "karpenter_instance_families" {
-  description = "Karpenter Instance Families"
-  type        = list(string)
-  default     = ["c", "m", "r", "t", "x"]
-}
-
-# Karpenter Instance Sizes
-variable "karpenter_instance_sizes" {
-  description = "Karpenter Instance Sizes"
-  type        = list(string)
-  default     = ["xlarge", "2xlarge", "3xlarge", "4xlarge", "5xlarge", "6xlarge", "7xlarge", "8xlarge", "9xlarge", "10xlarge"]
-}
-
-# Karpenter Environment
-variable "karpenter_env" {
-  description = "Karpenter Environment"
+################################################################################
+# VPC CNI Version
+################################################################################
+variable "vpc_cni_version" {
+  description = "VPC CNI version"
   type        = string
-  default     = "dev"
+  default     = "v1.19.3-eksbuild.1"
+}
+
+################################################################################
+# Kube Proxy Version
+################################################################################
+variable "kube_proxy_version" {
+  description = "Kube Proxy version"
+  type        = string
+  default     = "v1.19.3-eksbuild.1"
+}
+
+################################################################################
+# Metrics Server Version
+################################################################################
+variable "metrics_server_version" {
+  description = "Metrics Server version"
+  type        = string
+  default     = "v1.19.3-eksbuild.1"
 }

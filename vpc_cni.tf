@@ -1,5 +1,5 @@
 ################################################################################
-# VPC-CNI Custom Networking ENIConfig
+# VPC-CNI Custom Networking ENIConfig (VPC CNI 설치 시 필요)
 ################################################################################
 
 resource "helm_release" "eni_config" {
@@ -8,17 +8,16 @@ resource "helm_release" "eni_config" {
   repository = "https://bedag.github.io/helm-charts/"
   chart      = "raw"
   version    = "2.0.0"
-
-  # ENI 구성 템플릿 적용
-  values = [templatefile("${path.module}/templates/eni_config.tftpl", {
-    # 가용 영역별 ENI 구성 매핑
+  values = [templatefile("${path.module}/eni_config.tftpl", {
     eni_configs = zipmap(var.azs, var.eks_pod_subnet_ids),
-    # 보안 그룹 구성
     securityGroups = [
       var.cluster_primary_security_group_id
     ]
   })]
-}
+
+  # define the dependencies (module.eks_init 자기참조 방지)
+  depends_on = [module.eks_init]
+} # eni_config (end)
 
 ################################################################################
 # ENIConfig 상태 확인
@@ -27,7 +26,7 @@ resource "null_resource" "verify_eni_config" {
   provisioner "local-exec" {
     command = <<-EOT
       # kubeconfig 설정
-      aws eks update-kubeconfig --name ${var.cluster_name} --region ${var.region} --alias ${var.cluster_name}
+      aws eks update-kubeconfig --name ${local.cluster_name} --region ${local.region} --alias ${local.cluster_name}
 
       # ENIConfig 리소스 확인
       echo "ENIConfig 리소스 확인:"
