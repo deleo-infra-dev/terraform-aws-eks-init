@@ -1,8 +1,10 @@
 # terraform aws eks init
+
 To install karpenter addons with daemonsets kind addons. Install this before install [rayshoo/eks-addons/aws](https://github.com/rayshoo/terraform-aws-eks-addons) module. To use this module, it is recommended to separate node subnets and pod subnets.
 
 ## Example
-```hcl
+
+```yaml
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "18.31.2"
