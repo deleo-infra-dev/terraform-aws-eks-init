@@ -1,5 +1,11 @@
-# vscode
+.idea
+.idea/**
+
+.trunk
+.trunk/**
+
+.vscode
 .vscode/**
 
-# intelliJ
-.idea/**
+.terraform
+.terraform/**
