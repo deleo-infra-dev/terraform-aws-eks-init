@@ -37,15 +37,17 @@ resource "helm_release" "karpenter_default_node_resources" {
               default: 'true'
               consolidation: 'true'
               critical: 'false'
-              instance: m7i.xlarge
+              node: default
               capacity: on-demand
           spec:
             nodeClassRef:
               name: default
             requirements:
-            - key: node.kubernetes.io/instance-type
+            - key: karpenter.k8s.aws/instance-family
               operator: In
-              values: ["m7i.xlarge"]
+              values:
+              - m7i
+              - m7i-flex
             - key: karpenter.k8s.aws/instance-hypervisor
               operator: In
               values: ["nitro"]
@@ -55,19 +57,17 @@ resource "helm_release" "karpenter_default_node_resources" {
             - key: kubernetes.io/arch
               operator: In
               values: ["amd64"]
-            - key: "karpenter.sh/capacity-type" # If not included, the webhook for the AWS cloud provider will default to on-demand
+            - key: karpenter.sh/capacity-type
               operator: In
               values: ["on-demand"]
-            - key: kubernetes.io/os	
-              operator: In	
+            - key: kubernetes.io/os
+              operator: In
               values:	["linux"]
+            kubelet:
+              maxPods: 288
         disruption:
           consolidationPolicy: WhenUnderutilized
           expireAfter: 4320h # 180 Days = 180 * 24 Hours
-        # Karpenter provides the ability to specify a few additional Kubelet args.
-        # These are all optional and provide support for additional customization and use cases.
-        kubelet:
-          maxPods: 672
     EOF
   ]
   depends_on = [
