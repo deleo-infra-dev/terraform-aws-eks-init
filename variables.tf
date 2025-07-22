@@ -13,6 +13,11 @@ variable  "azs" {
   type        = any
   default     = {}
 }
+variable  "karpenter_azs" {
+  description = "karpenter default nodepool aws_availability_zones"
+  type        = any
+  default     = {}
+}
 variable "eks_pod_subnet_ids" {
   description = "eks pod subnet ids"
   type        = any

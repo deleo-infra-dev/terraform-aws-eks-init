@@ -53,7 +53,7 @@ resource "helm_release" "karpenter_default_node_resources" {
               values: ["nitro"]
             - key: topology.kubernetes.io/zone
               operator: In
-              values: ${jsonencode(var.azs)}
+              values: ${jsonencode(var.karpenter_azs)}
             - key: kubernetes.io/arch
               operator: In
               values: ["amd64"]
