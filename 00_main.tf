@@ -73,6 +73,10 @@ module "eks_init" {
       {
         name = "controller.resources.requests.memory"
         value = "512Mi"
+      },
+      {
+        name = "settings.featureGates.spotToSpotConsolidation"
+        value = "true"
       }
     ]
   }
