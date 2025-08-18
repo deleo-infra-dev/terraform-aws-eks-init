@@ -35,10 +35,13 @@ resource "helm_release" "karpenter_default_node_resources" {
           metadata:
             labels:
               default: 'true'
+              node: default
               consolidation: 'true'
               critical: 'false'
-              node: default
               capacity: on-demand
+              con: 'true'
+              cri: 'false'
+              cap: ond
           spec:
             nodeClassRef:
               name: default
