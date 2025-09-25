@@ -68,3 +68,8 @@ variable "tags" {
   type        = any
   default     = {}
 }
+variable "coredns_replica_count" {
+  description = " coredns replica count"
+  type        = any
+  default     = "2"
+}
