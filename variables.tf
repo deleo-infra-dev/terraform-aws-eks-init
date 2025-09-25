@@ -71,5 +71,5 @@ variable "tags" {
 variable "coredns_replica_count" {
   description = " coredns replica count"
   type        = any
-  default     = "2"
+  default     = 2
 }
