@@ -124,5 +124,11 @@ resource "helm_release" "karpenter_crd" {
   namespace  = "karpenter"
   wait       = true
 
-  set = try(var.karpenter_crd.set, [])
+  dynamic "set" {
+    for_each = try(var.karpenter_crd.set, [])
+    content {
+      name  = set.value.name
+      value = set.value.value
+    }
+  }
 }
