@@ -18,7 +18,12 @@ variable "karpenter" {
   type        = any
   default     = {}
 }
-variable  "karpenter_azs" {
+variable "karpenter_crd_chart_version" {
+  description = "karpenter crd chart version"
+  type        = string
+  default     = ""
+}
+variable "karpenter_azs" {
   description = "karpenter default nodepool aws_availability_zones"
   type        = any
   default     = {}
