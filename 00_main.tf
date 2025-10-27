@@ -70,16 +70,15 @@ module "eks_init" {
   karpenter = {
     repository_username = data.aws_ecrpublic_authorization_token.token.user_name
     repository_password = data.aws_ecrpublic_authorization_token.token.password
-    set = [
+    chart_version = try(var.karpenter.chart_version, "0.37.0")
+    set = concat([
       {
         name = "controller.resources.requests.memory"
         value = "512Mi"
-      },
-      {
-        name = "settings.featureGates.spotToSpotConsolidation"
-        value = "true"
       }
-    ]
+    ],
+    try(var.karpenter.set,[])
+    )
   }
   enable_metrics_server = true
 

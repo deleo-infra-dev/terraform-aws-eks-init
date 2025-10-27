@@ -120,7 +120,7 @@ resource "helm_release" "karpenter_crd" {
   name       = "karpenter-crd"
   repository = "oci://public.ecr.aws/karpenter"
   chart      = "karpenter-crd"
-  version    = var.karpenter_version
+  version    = try(var.karpenter.chart_version, "0.37.0")
   namespace  = "karpenter"
   wait       = true
 }
