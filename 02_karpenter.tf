@@ -16,7 +16,7 @@ resource "helm_release" "karpenter_default_node_resources" {
       metadata:
         name: default
       spec:
-        amiFamily: AL2023
+        amiFamily: ${try(var.karpenter.default_node.ami_family,"AL2")}
         role: ${module.eks_init.karpenter.node_iam_role_name}
         subnetSelectorTerms:
         - tags:
@@ -56,7 +56,7 @@ resource "helm_release" "karpenter_default_node_resources" {
               values: ["nitro"]
             - key: topology.kubernetes.io/zone
               operator: In
-              values: ${jsonencode(var.karpenter_azs)}
+              values: ${jsonencode(var.karpenter.default_node.azs)}
             - key: kubernetes.io/arch
               operator: In
               values: ["amd64"]
