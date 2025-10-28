@@ -4,13 +4,13 @@
 
 locals {
   karpenter_default_resources = var.karpenter.default_node.resources_version == "v1"
-    ? templatefile(".terraform/modules/eks_init/templates/karpenter_v1.yaml.tftpl", {
+    ? templatefile(".terraform/modules/eks_init/karpenter_v1.yaml.tftpl", {
         ami_alias    = try(var.karpenter.default_node.ami_alias, "al2023@latest")
         role_name    = module.eks_init.karpenter.node_iam_role_name
         cluster_name = var.cluster_name
         azs          = jsonencode(var.karpenter.default_node.azs)
       })
-    : templatefile(".terraform/modules/eks_init/templates/karpenter_v1beta1.yaml.tftpl", {
+    : templatefile(".terraform/modules/eks_init/karpenter_v1beta1.yaml.tftpl", {
         ami_family   = try(var.karpenter.default_node.ami_family, "AL2")
         role_name    = module.eks_init.karpenter.node_iam_role_name
         cluster_name = var.cluster_name
