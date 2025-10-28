@@ -1,5 +1,4 @@
-variables:
-  TERRAFORM_MODULE_DIR: aws
-
 include:
-  template: Terraform-Module.gitlab-ci.yml
+- project: infra-dev/cicd
+  ref: master
+  file: devops/terraform.yaml
